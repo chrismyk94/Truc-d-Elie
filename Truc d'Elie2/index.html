@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPITALE TT — Gestion BTP</title>
+    <!-- Chargement de la police Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;850;900&display=swap" rel="stylesheet">
+    <!-- Lien vers le fichier CSS externe -->
+    <link rel="stylesheet" href="style.css">
+
+<style>
+.form-grid .full-width{grid-column:1 / -1}
+.client-modal-box{width:min(1080px,100%)}
+.client-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.client-tab{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:8px;padding:9px 12px;font-size:11px;font-weight:750;white-space:nowrap}
+.client-tab:hover,.client-tab.active{background:var(--blue2);border-color:#cfe4ff;color:#1663b6}
+.client-tab-panel{display:none}
+.client-tab-panel.active{display:block;animation:fade .2s ease}
+.empty-tab{min-height:180px;display:grid;place-items:center;align-content:center;text-align:center;padding:28px;border:1px dashed var(--line);border-radius:10px;background:#fbfdff}
+.empty-tab h3{margin:0 0 8px;color:var(--navy)}
+.empty-tab p{max-width:520px;margin:0 0 16px;color:var(--muted);font-size:12px}
+.client-actions{justify-content:flex-end;margin-top:20px}
+@media(max-width:720px){
+  .client-tabs{overflow-x:auto}
+  .client-tab{font-size:10px;padding:8px 10px}
+  .client-actions{position:sticky;bottom:0;background:#fff;padding-top:12px}
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+    <!-- BARRE LATÉRALE (NAVIGATION) -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo">CT</div>
+            <div><strong>CAPITALE TT</strong><span>Gestion BTP intelligente</span></div>
+        </div>
+        <div>
+            <div class="nav-title">Pilotage</div>
+            <nav class="nav">
+                <button class="active" data-view="dashboard"><span class="icon">⌂</span>Accueil</button>
+                <button data-view="planning"><span class="icon">▦</span>Planning</button>
+                <button data-view="alertes"><span class="icon">!</span>Alertes & priorités</button>
+            </nav>
+            <div class="nav-title">Ressources</div>
+            <nav class="nav">
+                <button data-view="interimaires"><span class="icon">♙</span>Intérimaires</button>
+                <button data-view="clients"><span class="icon">▣</span>Clients & chantiers</button>
+                <button data-view="matching"><span class="icon">✦</span>Demandes & matching</button>
+            </nav>
+            <div class="nav-title">Développement commercial</div>
+            <nav class="nav">
+                <button data-view="commercial"><span class="icon">↗</span>Prospection & pipeline</button>
+                <button data-view="marches"><span class="icon">▤</span>Marchés publics</button>
+                <button data-view="marge"><span class="icon">€</span>Tarifs & marges</button>
+            </nav>
+            <div class="nav-title">Sécuriser l'activité</div>
+            <nav class="nav">
+                <button data-view="conformite"><span class="icon">✓</span>Conformité & risques</button>
+                <button data-view="logistique"><span class="icon">⌁</span>Logistique & EPI</button>
+                <button data-view="communication"><span class="icon">✉</span>Communication</button>
+            </nav>
+            <div class="nav-title">Accès rapides</div>
+            <nav class="nav"><button data-view="portails"><span class="icon">↗</span>Portails externes</button></nav>
+        </div>
+        <div class="sidebar-bottom">Version 5.0 — Supabase
+<span style="color:#69b0ff">Gérant connecté</span></div>
+    </aside>
+
+    <!-- ZONE PRINCIPALE -->
+    <main class="main">
+        <!-- BARRE SUPÉRIEURE -->
+        <header class="topbar">
+            <div class="breadcrumb">CAPITALE TT <span style="color:#b5c4d4">/</span> <strong id="crumb">Accueil</strong></div>
+            <div class="top-actions">
+                <span id="dbStatus" class="badge orange">Connexion Base...</span>
+                <input class="search" placeholder="Rechercher..." id="search">
+                <div class="avatar">JD</div>
+            </div>
+        </header>
+
+        <!-- CONTENU DYNAMIQUE -->
+        <div class="content">
+
+            <!-- 1. ACCUEIL (DASHBOARD) -->
+            <section class="view" id="dashboard">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow" id="currentDate"></div>
+                        <h1 class="page-title">Bonjour, Jean 👋</h1>
+                        <p class="page-sub">Voici ce qui mérite votre attention aujourd’hui.</p>
+                    </div>
+                    <div class="actions">
+                        <button class="btn light" onclick="openDemandeModal()">+ Créer une demande</button>
+                        <button class="btn primary" onclick="show('matching')">Voir les urgences</button>
+                    </div>
+                </div>
+                <div class="grid kpis">
+                    <div class="card"><div class="kpi-label">Missions actives</div><div class="kpi-value" id="kpiMissions">28</div><div class="kpi-foot">+4 cette semaine</div></div>
+                    <div class="card"><div class="kpi-label">Intérimaires disponibles</div><div class="kpi-value" id="kpiInterims">46</div><div class="kpi-foot">12 profils qualifiés BTP</div></div>
+                    <div class="card"><div class="kpi-label">Demandes à traiter</div><div class="kpi-value" id="kpiDemandes">7</div><div class="kpi-foot" style="color:var(--orange)">3 urgentes</div></div>
+                    <div class="card"><div class="kpi-label">Marge moyenne</div><div class="kpi-value" id="kpiMarge">5,20 €<small style="font-size:13px">/h</small></div><div class="kpi-foot">Objectif ≥ 4,50 €/h</div></div>
+                </div>
+                <div class="grid layout-2">
+                    <div class="card priority">
+                        <div class="section-title"><span>🎯 Priorité du jour</span><span class="badge red">URGENT</span></div>
+                        <h2>Pourvoir la demande VINCI — Maçon Coffreur N3</h2>
+                        <p>Un profil disponible, conforme et situé à 14 km est prêt à être proposé. La marge estimée est de <b>4,70 €/h</b>.</p>
+                        <button class="btn primary" onclick="show('matching')">Ouvrir la recommandation</button>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>⚠️ À traiter aujourd’hui</span><small onclick="show('alertes')">Tout voir</small></div>
+                        <div class="list" id="dashboardAlerts"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. PLANNING -->
+            <section class="view hidden" id="planning">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Opérations</div>
+                        <h1 class="page-title">Planning</h1>
+                        <p class="page-sub">Planification et affectation des missions en temps réel.</p>
+                    </div>
+                    <button class="btn primary" onclick="openPlanningModal()">+ Ajouter au planning</button>
+                </div>
+                <div class="card">
+                    <div class="section-title"><span>Vue hebdomadaire</span></div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Ressource / Action</th><th>Lun 21</th><th>Mar 22</th><th>Mer 23</th><th>Jeu 24</th><th>Ven 25</th></tr>
+                            </thead>
+                            <tbody id="planningBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. INTÉRIMAIRES -->
+            <section class="view hidden" id="interimaires">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Ressources</div>
+                        <h1 class="page-title">Intérimaires</h1>
+                        <p class="page-sub">Profils, compétences et conformité réglementaire.</p>
+                    </div>
+                    <button class="btn primary" onclick="openInterimaireModal()">+ Ajouter un intérimaire</button>
+                </div>
+                <div class="card">
+                    <div class="section-title"><span>Liste des collaborateurs disponibles</span></div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Collaborateur</th><th>Métier & Niveau</th><th>Disponibilité</th><th>Score Terrain</th><th>Conformité</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="interimairesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. CLIENTS & CHANTIERS -->
+            <section class="view hidden" id="clients">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Ressources</div>
+                        <h1 class="page-title">Clients & chantiers</h1>
+                        <p class="page-sub">Gestion des comptes, des chantiers actifs et de l'encours.</p>
+                    </div>
+                    <button class="btn primary" onclick="openClientModal()">+ Créer un client</button>
+                </div>
+                <div class="card">
+                    <div class="section-title"><span>Fiches clients enregistrées</span><small id="clientCount">0 client</small></div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Entreprise</th><th>Type</th><th>Contact principal</th><th>Potentiel TT</th><th>Statut</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="clientsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. MATCHING -->
+            <section class="view hidden" id="matching">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Opérations</div>
+                        <h1 class="page-title">Demandes & matching</h1>
+                        <p class="page-sub">Mettre en relation les besoins chantiers et les profils qualifiés.</p>
+                    </div>
+                    <button class="btn primary" onclick="openDemandeModal()">+ Saisir une demande</button>
+                </div>
+                <div class="grid layout-2">
+                    <div class="card">
+                        <div class="section-title"><span>Demandes actives</span></div>
+                        <div class="list" id="demandesList"></div>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Recommandation automatique</span><span class="badge green">Score 94%</span></div>
+                        <div class="portal-card">
+                            <div class="portal-icon">JD</div>
+                            <div>
+                                <h3 style="margin:0;font-size:15px">Jean D. — INT-042</h3>
+                                <p style="margin:4px 0;color:var(--muted);font-size:12px">Maçon Coffreur N3 • 14 km • Disponible</p>
+                            </div>
+                        </div>
+                        <div class="alert blue" style="margin-top:16px">
+                            Pitch suggéré : "Profil très fiable, disponible immédiatement, habite à 14 km du chantier."
+                        </div>
+                        <div class="actions" style="margin-top:16px">
+                            <button class="btn primary" style="width:100%" onclick="toast('Proposition envoyée au client !')">✓ Envoyer cette proposition</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. PROSPECTION -->
+            <section class="view hidden" id="commercial">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Développement</div>
+                        <h1 class="page-title">Prospection & pipeline</h1>
+                        <p class="page-sub">Suivi du tunnel de vente et des opportunités chantiers.</p>
+                    </div>
+                    <button class="btn primary" onclick="openProspectModal()">+ Capturer une opportunité</button>
+                </div>
+                <div class="card">
+                    <div class="section-title"><span>Pipeline commercial</span></div>
+                    <div class="pipeline" id="pipelineStages">
+                        <div class="stage" data-stage="Sourcé"><h4>Sourcé</h4><div class="stage-content"></div></div>
+                        <div class="stage" data-stage="Premier contact"><h4>Premier contact</h4><div class="stage-content"></div></div>
+                        <div class="stage" data-stage="RDV conducteur"><h4>RDV Conducteur</h4><div class="stage-content"></div></div>
+                        <div class="stage" data-stage="Devis"><h4>Devis</h4><div class="stage-content"></div></div>
+                        <div class="stage" data-stage="Négociation"><h4>Négociation</h4><div class="stage-content"></div></div>
+                        <div class="stage" data-stage="Contrat signé"><h4>Contrat signé</h4><div class="stage-content"></div></div>
+                        <div class="stage" data-stage="Perdu"><h4>Perdu</h4><div class="stage-content"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. MARCHÉS PUBLICS -->
+            <section class="view hidden" id="marches">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Développement</div>
+                        <h1 class="page-title">Marchés publics & insertion</h1>
+                        <p class="page-sub">Suivi des clauses sociales et justificatifs d'insertion.</p>
+                    </div>
+                </div>
+                <div class="grid layout-2">
+                    <div class="card">
+                        <div class="section-title"><span>Appels d'offres détectés</span></div>
+                        <div class="list">
+                            <div class="row"><div><h4>Collège Versailles — Gros Œuvre</h4><p>Titulaire : Bouygues Bâtiment IDF</p></div><span class="badge green">Vérifié</span></div>
+                            <div class="row"><div><h4>Réhabilitation A13 — VRD</h4><p>Titulaire : Eiffage Route • 120h d'insertion</p></div><span class="badge orange">À contacter</span></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Clause d'insertion</span><small>Projet Versailles</small></div>
+                        <div class="kpi-value">684 h <small style="font-size:13px">/ 900 h</small></div>
+                        <div class="progress"><span style="width:76%"></span></div>
+                        <p style="font-size:12px;color:var(--muted);margin-top:12px">Pièces validées : DC4, Attestations URSSAF.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. TARIFS & MARGES -->
+            <section class="view hidden" id="marge">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Rentabilité</div>
+                        <h1 class="page-title">Tarifs & marges</h1>
+                        <p class="page-sub">Calculateur de marge brute et barèmes conseillés.</p>
+                    </div>
+                    <button class="btn primary" onclick="openBaremeModal()">+ Ajouter un barème</button>
+                </div>
+                <div class="grid layout-2">
+                    <div class="card">
+                        <div class="section-title"><span>Calculateur de marge</span><span class="badge green">Seuil : 4,50 €/h</span></div>
+                        <div class="form-grid">
+                            <div class="field"><label>Prix de vente (€/h)</label><input id="sell" type="number" value="28.50"></div>
+                            <div class="field"><label>Coût chargé (€/h)</label><input id="cost" type="number" value="23.80"></div>
+                        </div>
+                        <div id="marginBox" class="alert green" style="margin-top:16px">
+                            <span>Marge brute estimée</span><b id="margin">4,70 €/h — Conforme</b>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Barèmes par métier</span></div>
+                        <table class="table">
+                            <thead><tr><th>Métier</th><th>Niveau</th><th>Prix Vente</th><th>Marge</th></tr></thead>
+                            <tbody id="baremeBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. CONFORMITÉ & RISQUES -->
+            <section class="view hidden" id="conformite">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Sécurité</div>
+                        <h1 class="page-title">Conformité & risques</h1>
+                        <p class="page-sub">Blocages automatiques en cas de dossiers périmés ou d'encours dépassés.</p>
+                    </div>
+                </div>
+                <div class="grid layout-2">
+                    <div class="card">
+                        <div class="section-title"><span>Blocages actifs</span></div>
+                        <div class="list">
+                            <div class="alert red"><span><b>INT-155 (Michel T.)</b> — Visite médicale expirée</span><b>BLOQUÉ</b></div>
+                            <div class="alert red"><span><b>CLI-104 (BTP-West)</b> — Encours dépassé</span><b>BLOQUÉ</b></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Règles de sécurité</span></div>
+                        <div class="list">
+                            <div class="row"><div><h4>Document expiré</h4><p>Empêche automatiquement l'affectation</p></div><span class="badge green">Actif</span></div>
+                            <div class="row"><div><h4>Client bloqué</h4><p>Bloque l'émission de nouveaux contrats</p></div><span class="badge green">Actif</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. LOGISTIQUE & EPI -->
+            <section class="view hidden" id="logistique">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Opérations</div>
+                        <h1 class="page-title">Logistique & EPI</h1>
+                        <p class="page-sub">Calcul de zones de déplacement et suivi des équipements de sécurité.</p>
+                    </div>
+                </div>
+                <div class="grid layout-3">
+                    <div class="card">
+                        <div class="section-title"><span>Zones de trajet</span></div>
+                        <div class="form-grid">
+                            <div class="field"><label>Distance domicile-chantier (km)</label><input id="distance" type="number" value="14"></div>
+                        </div>
+                        <div class="alert green" style="margin-top:14px"><span id="zone">Zone 2 • Dans le rayon</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Bons EPI émis</span></div>
+                        <div class="list">
+                            <div class="row"><div><h4>Jean D.</h4><p>Chaussures S3, Casque, Gants</p></div><span class="badge green">Livré</span></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Intempéries</span></div>
+                        <div class="kpi-value">2 arrêts</div><p style="font-size:12px;color:var(--muted)">16 heures déclarées à la caisse BTP ce mois-ci.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 11. COMMUNICATION -->
+            <section class="view hidden" id="communication">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Relations</div>
+                        <h1 class="page-title">Communication</h1>
+                        <p class="page-sub">Historique des e-mails et fiches de synthèse avant appel.</p>
+                    </div>
+                </div>
+                <div class="grid layout-2">
+                    <div class="card">
+                        <div class="section-title"><span>Boîte de réception intelligente</span></div>
+                        <div class="list">
+                            <div class="row"><div><h4>01_URGENCES_CHANTIERS</h4><p>Besoin Maçon Coffreur N3 — Versailles</p></div><span class="badge red">1</span></div>
+                            <div class="row"><div><h4>02_FEUILLES_HEURES_PAIE</h4><p>Feuilles de la semaine à contrôler</p></div><span class="badge blue">14</span></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Fiche flash avant appel</span><span class="badge orange">11h45</span></div>
+                        <div class="alert blue"><span><b>Historique :</b> Dernier contact il y a 3 jours</span></div>
+                        <div class="alert green"><span><b>Argumentaire :</b> Jean D. disponible immédiatement (noté 4,9/5)</span></div>
+                        <button class="btn primary" style="width:100%" onclick="toast('Lancement de l\'appel...')">Lancer l'appel</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 12. PORTAILS EXTERNES -->
+            <section class="view hidden" id="portails">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Accès</div>
+                        <h1 class="page-title">Portails externes</h1>
+                        <p class="page-sub">Simulateurs d'espaces pour vos clients et intérimaires.</p>
+                    </div>
+                </div>
+                <div class="grid layout-2">
+                    <div class="card">
+                        <div class="portal-card"><div class="portal-icon">♙</div><div><h2>Portail Intérimaire</h2><p>Déclarer une disponibilité.</p></div></div>
+                        <div class="form-grid" style="margin-top:18px">
+                            <div class="field"><label>Matricule</label><input value="INT-042"></div>
+                            <div class="field"><label>Nouveau statut</label><select><option>Disponible immédiatement</option><option>En mission</option></select></div>
+                        </div>
+                        <button class="btn primary" style="margin-top:14px" onclick="toast('Statut mis à jour !')">Enregistrer la disponibilité</button>
+                    </div>
+                    <div class="card">
+                        <div class="portal-card"><div class="portal-icon">▣</div><div><h2>Portail Client</h2><p>Formuler un besoin de personnel.</p></div></div>
+                        <div class="form-grid" style="margin-top:18px">
+                            <div class="field"><label>Entreprise</label><input value="VINCI Construction"></div>
+                            <div class="field"><label>Métier recherché</label><input value="Grutier"></div>
+                        </div>
+                        <button class="btn primary" style="margin-top:14px" onclick="toast('Demande soumise à l\'agence !')">Soumettre la demande</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 13. ALERTES -->
+            <section class="view hidden" id="alertes">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">Pilotage</div>
+                        <h1 class="page-title">Alertes & priorités</h1>
+                        <p class="page-sub">Toutes les actions nécessitant une attention immédiate.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="section-title"><span>Centre de contrôle</span></div>
+                    <div class="list">
+                        <div class="alert red"><span><b>Affectation bloquée :</b> INT-155 — Visite médicale expirée</span><button class="btn" onclick="toast('Alerte traitée')">Traiter</button></div>
+                        <div class="alert red"><span><b>Client bloqué :</b> CLI-104 — Encours dépassé</span><button class="btn" onclick="show('clients')">Voir la fiche</button></div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- Modal Client avec onglets -->
+<div id="clientModal" class="modal hidden">
+    <div class="modal-box client-modal-box">
+        <div class="modal-head">
+            <h2 id="clientModalTitle">Créer un client</h2>
+            <button class="close" type="button" onclick="closeClientModal()">×</button>
+        </div>
+
+        <div class="client-tabs">
+            <button type="button" class="client-tab active" data-tab="client-general">Informations générales</button>
+            <button type="button" class="client-tab" data-tab="client-commercial">Commercial</button>
+            <button type="button" class="client-tab" data-tab="client-finance">Facturation & risque</button>
+            <button type="button" class="client-tab" data-tab="client-contacts">Contacts</button>
+            <button type="button" class="client-tab" data-tab="client-chantiers">Chantiers</button>
+        </div>
+
+        <form id="clientForm" autocomplete="off">
+            <input type="hidden" id="clientId" name="id">
+
+            <div class="client-tab-panel active" id="client-general">
+                <div class="form-grid">
+                    <div class="field"><label>Type *</label><select id="clientType" name="type" required>
+                        <option value="Prospect">Prospect</option><option value="Client actif">Client actif</option>
+                        <option value="Ancien client">Ancien client</option><option value="Client à risque">Client à risque</option><option value="Partenaire">Partenaire</option>
+                    </select></div>
+                    <div class="field"><label>Statut</label><select id="clientStatus" name="status">
+                        <option value="À qualifier">À qualifier</option><option value="Actif">Actif</option><option value="Bloqué">Bloqué</option><option value="À risque">À risque</option><option value="Inactif">Inactif</option>
+                    </select></div>
+                    <div class="field"><label>Raison sociale *</label><input id="company" name="company" required></div>
+                    <div class="field"><label>Activité principale</label><input id="activity" name="activity"></div>
+                    <div class="field"><label>Téléphone</label><input id="phone" name="phone"></div>
+                    <div class="field"><label>E-mail général</label><input id="email" name="email" type="email"></div>
+                    <div class="field"><label>Adresse</label><input id="address" name="address"></div>
+                    <div class="field"><label>Code postal</label><input id="postal" name="postal"></div>
+                    <div class="field"><label>Ville</label><input id="city" name="city"></div>
+                    <div class="field"><label>Département</label><input id="department" name="department"></div>
+                    <div class="field"><label>SIRET</label><input id="siret" name="siret"></div>
+                    <div class="field"><label>Code NAF</label><input id="naf" name="naf"></div>
+                </div>
+            </div>
+
+            <div class="client-tab-panel" id="client-commercial">
+                <div class="form-grid">
+                    <div class="field"><label>Métiers utilisés</label><input id="jobs" name="jobs"></div>
+                    <div class="field"><label>Qualifications utilisées</label><input id="qualifications" name="qualifications"></div>
+                    <div class="field"><label>Nombre TT actuel</label><input id="currentTT" name="current_tt" type="number" min="0" value="0"></div>
+                    <div class="field"><label>Potentiel TT</label><input id="potentialTT" name="potential_tt" type="number" min="0" value="0"></div>
+                    <div class="field"><label>Agences concurrentes</label><input id="competitors" name="competitors"></div>
+                    <div class="field"><label>Tranche d’effectif</label><select id="employees" name="employees">
+                        <option value="">Non renseignée</option><option value="1–10">1–10</option><option value="11–50">11–50</option><option value="51–250">51–250</option><option value="250+">250+</option>
+                    </select></div>
+                </div>
+            </div>
+
+            <div class="client-tab-panel" id="client-finance">
+                <div class="form-grid">
+                    <div class="field"><label>Mode de facturation</label><input id="billing" name="billing"></div>
+                    <div class="field"><label>Délai de règlement</label><input id="paymentDelay" name="payment_delay" placeholder="30 jours"></div>
+                    <div class="field"><label>Mode de règlement</label><input id="paymentMethod" name="payment_method"></div>
+                    <div class="field"><label>Encours actuel (€)</label><input id="outstanding" name="outstanding" type="number" min="0" value="0"></div>
+                    <div class="field"><label>Encours autorisé (€)</label><input id="creditLimit" name="credit_limit" type="number" min="0" value="0"></div>
+                    <div class="field"><label>Niveau de risque</label><select id="riskLevel" name="risk_level">
+                        <option value="normal">Normal</option><option value="surveillance">Surveillance</option><option value="bloqué">Bloqué</option>
+                    </select></div>
+                    <div class="field"><label>E-mail contrats</label><input id="contractEmail" name="contract_email" type="email"></div>
+                    <div class="field"><label>E-mail factures</label><input id="invoiceEmail" name="invoice_email" type="email"></div>
+                </div>
+            </div>
+
+            <div class="client-tab-panel" id="client-contacts">
+                <div class="empty-tab"><h3>Contacts du client</h3><p>Les contacts multiples seront gérés ici.</p>
+                    <button type="button" class="btn light" onclick="toast('Gestion des contacts à connecter')">+ Ajouter un contact</button>
+                </div>
+            </div>
+
+            <div class="client-tab-panel" id="client-chantiers">
+                <div class="empty-tab"><h3>Chantiers associés</h3><p>Les chantiers liés à ce client seront gérés ici.</p>
+                    <button type="button" class="btn light" onclick="toast('Gestion des chantiers à connecter')">+ Ajouter un chantier</button>
+                </div>
+            </div>
+
+            <div class="actions client-actions">
+                <button type="button" class="btn" onclick="closeClientModal()">Annuler</button>
+                <button type="submit" class="btn primary">Enregistrer les modifications</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Intérimaire -->
+<div id="interimaireModal" class="modal hidden">
+    <div class="modal-box">
+        <div class="modal-head"><h2>Ajouter un intérimaire</h2><button class="close" onclick="closeInterimaireModal()">×</button></div>
+        <form id="interimaireForm">
+            <div class="form-grid">
+                <div class="field"><label>Nom *</label><input id="intNom" required></div>
+                <div class="field"><label>Prénom *</label><input id="intPrenom" required></div>
+                <div class="field"><label>Métier & Niveau *</label><input id="intMetier" placeholder="Ex: Maçon N3" required></div>
+                <div class="field"><label>Disponibilité</label><select id="intDispo"><option>Immédiate</option><option>En mission</option><option>En formation</option></select></div>
+                <div class="field"><label>Score terrain</label><input id="intScore" type="number" step="0.1" value="4.5"></div>
+                <div class="field"><label>Conformité</label><select id="intConformite"><option>Conforme</option><option>CACES à renouveler</option><option>Visite médicale expirée</option></select></div>
+            </div>
+            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
+                <button type="button" class="btn" onclick="closeInterimaireModal()">Annuler</button>
+                <button type="submit" class="btn primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Demande -->
+<div id="demandeModal" class="modal hidden">
+    <div class="modal-box">
+        <div class="modal-head"><h2>Saisir une demande</h2><button class="close" onclick="closeDemandeModal()">×</button></div>
+        <form id="demandeForm">
+            <div class="form-grid">
+                <div class="field"><label>Client *</label><select id="demandeClient" name="client_id" required><option value="">Sélectionner un client</option></select></div>
+                <div class="field"><label>Métier recherché *</label><input id="demandeMetier" name="trade" required></div>
+                <div class="field"><label>Démarrage *</label><input id="demandeStart" name="start_date" type="date" required></div>
+                <div class="field"><label>Urgence</label><select id="demandeUrgence" name="urgency"><option>Normal</option><option>Urgent</option></select></div>
+            </div>
+            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
+                <button type="button" class="btn" onclick="closeDemandeModal()">Annuler</button>
+                <button type="submit" class="btn primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Prospect complet -->
+<div id="prospectModal" class="modal hidden">
+    <div class="modal-box">
+        <div class="modal-head"><h2>Capturer une opportunité</h2><button class="close" type="button" onclick="closeProspectModal()">×</button></div>
+        <form id="prospectForm" autocomplete="off">
+            <input type="hidden" id="prospectId" name="id">
+            <div class="form-grid">
+                <div class="field"><label>Nom du projet/client *</label><input id="propName" name="name" required></div>
+                <div class="field"><label>Client associé</label><select id="propClient" name="client_id"><option value="">Aucun client associé</option></select></div>
+                <div class="field"><label>Source</label><input id="propSource" name="source" placeholder="Ex: BOAMP, Sitadel"></div>
+                <div class="field"><label>Étape actuelle *</label><select id="propStage" name="stage" required>
+                    <option value="Sourcé">Sourcé</option><option value="Premier contact">Premier contact</option><option value="RDV conducteur">RDV conducteur</option><option value="Devis">Devis</option><option value="Négociation">Négociation</option><option value="Contrat signé">Contrat signé</option><option value="Perdu">Perdu</option>
+                </select></div>
+                <div class="field"><label>Potentiel (€)</label><input id="propPotential" name="potential" type="number" min="0" step="0.01" value="0"></div>
+                <div class="field"><label>Probabilité (%)</label><input id="propProbability" name="probability" type="number" min="0" max="100" step="1" value="0"></div>
+                <div class="field"><label>Prochaine action</label><input id="propNextAction" name="next_action" placeholder="Ex: Relancer devis"></div>
+                <div class="field"><label>Date de relance</label><input id="propFollowUp" name="follow_up_date" type="date"></div>
+                <div class="field"><label>Assigné à</label><select id="propAssignedTo" name="assigned_to"><option value="">Non assigné</option></select></div>
+                <div class="field full-width"><label>Notes</label><textarea id="propNotes" name="notes" rows="3"></textarea></div>
+            </div>
+            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
+                <button type="button" class="btn" onclick="closeProspectModal()">Annuler</button>
+                <button type="submit" class="btn primary">Enregistrer l'opportunité</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Barème -->
+<div id="baremeModal" class="modal hidden">
+    <div class="modal-box">
+        <div class="modal-head"><h2>Ajouter un barème</h2><button class="close" onclick="closeBaremeModal()">×</button></div>
+        <form id="baremeForm">
+            <div class="form-grid">
+                <div class="field"><label>Métier *</label><input id="barMetier" required></div>
+                <div class="field"><label>Niveau *</label><input id="barNiveau" required></div>
+                <div class="field"><label>Prix de vente (€/h) *</label><input id="barSell" type="number" step="0.01" required></div>
+                <div class="field"><label>Marge (€/h) *</label><input id="barMargin" type="number" step="0.01" required></div>
+            </div>
+            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
+                <button type="button" class="btn" onclick="closeBaremeModal()">Annuler</button>
+                <button type="submit" class="btn primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Planning -->
+<div id="planningModal" class="modal hidden">
+    <div class="modal-box">
+        <div class="modal-head"><h2>Ajouter au planning</h2><button class="close" type="button" onclick="closePlanningModal()">×</button></div>
+        <form id="planningForm" autocomplete="off">
+            <div class="form-grid">
+                <div class="field"><label>Ressource / Intérimaire *</label><input id="planRes" name="resource" required></div>
+                <div class="field"><label>Type d'action *</label><select id="planType" name="action_type" required>
+                    <option value="Mission">Mission</option><option value="Appel commercial">Appel commercial</option><option value="Rendez-vous terrain">Rendez-vous terrain</option><option value="Formation">Formation</option><option value="Relance">Relance</option><option value="Terrain">Terrain</option><option value="Autre">Autre</option>
+                </select></div>
+                <div class="field"><label>Date *</label><input id="planDate" name="action_date" type="date" value="2026-10-01" required></div>
+            </div>
+            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
+                <button type="button" class="btn" onclick="closePlanningModal()">Annuler</button>
+                <button type="submit" class="btn primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast notifications -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- SDK SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- PROTECTION DE L'APPLICATION -->
+<script src="auth_guard.js"></script>
+<!-- LOGIQUE DE L'APPLICATION -->
+<script src="app.js"></script>
+</body>
+</html>
