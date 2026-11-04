@@ -4,643 +4,1606 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAPITALE TT — Gestion BTP</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏗️</text></svg>">
     <!-- Chargement de la police Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;850;900&display=swap" rel="stylesheet">
-    <!-- Lien vers le fichier CSS externe -->
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- STYLES CSS ULTRA-DESIGN & ANIMATIONS -->
+    <style>
+        :root {
+            --primary-dark: #090d16;    
+            --primary-sidebar: #0f172a;   
+            --primary-brand: #1d4ed8;   
+            --primary-hover: #1e40af;   
+            --primary-light: #3b82f6;   
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            
+            --bg-main: #f1f5f9;         
+            --bg-card: #ffffff;         
+            --text-main: #0f172a;       
+            --text-muted: #64748b;      
+            --border-color: #e2e8f0;    
 
-<style>
-.form-grid .full-width{grid-column:1 / -1}
-.client-modal-box{width:min(1080px,100%)}
-.client-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}
-.client-tab{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:8px;padding:9px 12px;font-size:11px;font-weight:750;white-space:nowrap}
-.client-tab:hover,.client-tab.active{background:var(--blue2);border-color:#cfe4ff;color:#1663b6}
-.client-tab-panel{display:none}
-.client-tab-panel.active{display:block;animation:fade .2s ease}
-.empty-tab{min-height:180px;display:grid;place-items:center;align-content:center;text-align:center;padding:28px;border:1px dashed var(--line);border-radius:10px;background:#fbfdff}
-.empty-tab h3{margin:0 0 8px;color:var(--navy)}
-.empty-tab p{max-width:520px;margin:0 0 16px;color:var(--muted);font-size:12px}
-.client-actions{justify-content:flex-end;margin-top:20px}
-@media(max-width:720px){
-  .client-tabs{overflow-x:auto}
-  .client-tab{font-size:10px;padding:8px 10px}
-  .client-actions{position:sticky;bottom:0;background:#fff;padding-top:12px}
-}
-</style>
+            --soft-blue: #eff6ff;       
+            --border-blue: #bfdbfe;     
 
+            --green: #059669;
+            --green-bg: #ecfdf5;
+            --red: #dc2626;
+            --red-bg: #fef2f2;
+            --orange: #d97706;
+            --orange-bg: #fffbeb;
+
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            
+            --shadow-subtle: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+            --shadow-card: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
+            --shadow-hover: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .hidden { display: none !important; }
+        .full-width { grid-column: 1 / -1; width: 100%; }
+        .mt-8 { margin-top: 8px; }
+        .mt-12 { margin-top: 12px; }
+        .mt-14 { margin-top: 14px; }
+        .mt-16 { margin-top: 16px; }
+        .mt-18 { margin-top: 18px; }
+        .gap-10 { gap: 10px; }
+        .flex-end { display: flex; justify-content: flex-end; }
+        .text-muted { color: var(--text-muted); font-size: 12px; }
+        .text-orange { color: var(--orange); }
+
+        .app { display: flex; min-height: 100vh; }
+
+        /* SIDEBAR STYLÉE */
+        .sidebar {
+            width: 280px; background: linear-gradient(180deg, var(--primary-sidebar) 0%, var(--primary-dark) 100%);
+            color: #ffffff; display: flex; flex-direction: column; padding: 24px 18px; flex-shrink: 0;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.05); z-index: 10;
+        }
+        .brand { display: flex; align-items: center; gap: 14px; padding-bottom: 22px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 20px; }
+        .logo {
+            width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary-light), var(--primary-brand));
+            color: #fff; font-weight: 900; font-size: 18px; display: flex; align-items: center; justify-content: center;
+            border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        .brand strong { display: block; font-size: 15px; letter-spacing: 0.5px; }
+        .brand span { font-size: 11px; color: #94a3b8; }
+        .nav-wrapper { flex: 1; overflow-y: auto; padding-right: 2px; }
+        .nav-wrapper::-webkit-scrollbar { width: 4px; }
+        .nav-wrapper::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+        .nav-title { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.2px; color: #64748b; margin: 20px 0 8px 10px; font-weight: 700; }
+        
+        .nav button {
+            width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: transparent;
+            border: none; color: #94a3b8; font-size: 13.5px; font-weight: 500; border-radius: var(--radius-sm);
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); text-align: left; margin-bottom: 3px;
+        }
+        .nav button .icon { font-size: 16px; color: #64748b; width: 20px; transition: color 0.2s; }
+        .nav button:hover { background-color: rgba(255, 255, 255, 0.05); color: #ffffff; transform: translateX(4px); }
+        .nav button:hover .icon { color: var(--primary-light); }
+        .nav button.active { background: linear-gradient(135deg, var(--primary-brand), var(--primary-hover)); color: #ffffff; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35); font-weight: 600; }
+        .nav button.active .icon { color: #ffffff; }
+        
+        .sidebar-bottom { padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
+        .badge-status { color: #60a5fa; background: rgba(96, 165, 250, 0.12); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+
+        /* TOPBAR & MAIN */
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .topbar { height: 72px; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 36px; box-shadow: var(--shadow-subtle); }
+        .breadcrumb { font-size: 13.5px; color: var(--text-muted); }
+        .breadcrumb .sep { color: #cbd5e1; margin: 0 8px; }
+        .breadcrumb strong { color: var(--text-main); font-weight: 600; }
+        .top-actions { display: flex; align-items: center; gap: 18px; }
+        
+        .search { padding: 9px 18px; border-radius: 24px; border: 1px solid var(--border-color); background-color: var(--bg-main); font-size: 13px; outline: none; width: 200px; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        .search:focus { border-color: var(--primary-light); box-shadow: 0 0 0 4px var(--accent-glow); width: 260px; background-color: #ffffff; }
+        
+        .avatar { width: 38px; height: 38px; background: linear-gradient(135deg, var(--soft-blue), #dbeafe); color: var(--primary-brand); border: 1px solid var(--border-blue); font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: var(--shadow-subtle); cursor: pointer; }
+        .content { padding: 36px; overflow-y: auto; flex: 1; }
+
+        /* ANIMATIONS FLUIDES */
+        @keyframes fadeInView { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .view:not(.hidden) { animation: fadeInView 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.94) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal:not(.hidden) { animation: fadeInView 0.2s ease forwards; }
+        .modal:not(.hidden) .modal-box { animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes toastSlideUp { from { opacity: 0; transform: translateY(24px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .toast:not(.hidden) { animation: toastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* HEADERS */
+        .page-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; }
+        .eyebrow { font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--primary-brand); letter-spacing: 0.8px; margin-bottom: 4px; }
+        .page-title { font-size: 26px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+        .page-sub { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+
+        /* BOUTONS & BADGES DESIGN */
+        .btn { padding: 10px 20px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 600; border: 1px solid var(--border-color); background-color: #ffffff; color: var(--text-main); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-subtle); }
+        .btn:hover { background-color: var(--bg-main); border-color: #cbd5e1; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05); }
+        .btn.primary { background: linear-gradient(135deg, var(--primary-brand), var(--primary-hover)); color: #ffffff; border: none; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25); }
+        .btn.primary:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 6px 16px rgba(29, 78, 216, 0.35); }
+        .btn.light { background-color: var(--soft-blue); color: var(--primary-brand); border: 1px solid var(--border-blue); box-shadow: none; }
+        .btn.light:hover { background-color: #dbeafe; }
+        
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge.orange { background-color: var(--orange-bg); color: var(--orange); border: 1px solid #fde68a; }
+        .badge.green { background-color: var(--green-bg); color: var(--green); border: 1px solid #a7f3d0; }
+        .badge.red { background-color: var(--red-bg); color: var(--red); border: 1px solid #fecaca; }
+        .badge.blue { background-color: var(--soft-blue); color: var(--primary-brand); border: 1px solid var(--border-blue); }
+
+        /* CARTES & GRILLES */
+        .grid { display: grid; gap: 24px; margin-bottom: 28px; }
+        .kpis { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+        .layout-2 { grid-template-columns: 2fr 1fr; }
+        .layout-3 { grid-template-columns: repeat(3, 1fr); }
+        
+        .card { background-color: var(--bg-card); border-radius: var(--radius-md); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow-card); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card:hover { box-shadow: var(--shadow-hover); border-color: #cbd5e1; }
+        .card.priority { border-left: 5px solid var(--primary-brand); background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); }
+        .kpi-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        .kpi-value { font-size: 30px; font-weight: 800; color: var(--text-main); margin: 8px 0; letter-spacing: -0.5px; }
+        .kpi-foot { font-size: 12px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: 700; font-size: 15.5px; letter-spacing: -0.3px; }
+        .section-title small { color: var(--primary-brand); cursor: pointer; font-size: 12.5px; font-weight: 600; }
+
+        /* TABLEAUX & ALERTES ÉPURÉS */
+        .table-wrap { overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px; }
+        .table th { background-color: var(--bg-main); padding: 14px 16px; color: var(--text-muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border-color); font-weight: 700; }
+        .table td { padding: 16px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+        .table tbody tr { transition: background-color 0.15s ease; }
+        .table tbody tr:hover { background-color: #f8fafc; }
+
+        .alert { padding: 16px; border-radius: var(--radius-sm); font-size: 13.5px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-subtle); }
+        .alert.blue { background-color: var(--soft-blue); color: #1e3a8a; border: 1px solid var(--border-blue); }
+        .alert.green { background-color: var(--green-bg); color: #064e3b; border: 1px solid #a7f3d0; }
+        .alert.red { background-color: var(--red-bg); color: #7f1d1d; border: 1px solid #fecaca; }
+
+        .list { display: flex; flex-direction: column; gap: 12px; }
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; border-bottom: 1px solid var(--border-color); transition: transform 0.15s; }
+        .row:hover { transform: translateX(3px); }
+        .row h4 { font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .row p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        /* PIPELINE COMMERCIAL */
+        .pipeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 14px; }
+        .stage { background-color: var(--bg-main); border-radius: var(--radius-sm); padding: 14px; border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle); min-height: 240px; display: flex; flex-direction: column; transition: background-color 0.2s, border-color 0.2s; }
+        .stage.drag-over { background-color: var(--soft-blue); border: 1px dashed var(--primary-brand); }
+        .stage-content { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .stage h4 { font-size: 11.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; font-weight: 700; }
+        
+        .pipeline-card { padding: 10px 12px !important; font-size: 12.5px !important; cursor: pointer; display: flex !important; flex-direction: column; gap: 6px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); user-select: none; position: relative; }
+        .pipeline-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+        .pipeline-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; width: 100%; }
+        .pipeline-card-title { font-weight: 700; line-height: 1.3; word-break: break-word; }
+        .pipeline-card-meta { font-size: 11px; opacity: 0.85; font-weight: 500; }
+        .pipeline-actions { display: flex; justify-content: space-between; align-items: center; width: 100%; padding-top: 6px; margin-top: 2px; border-top: 1px solid rgba(0, 0, 0, 0.06); }
+        .pipe-btn { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 6px; padding: 2px 7px; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--text-main); transition: all 0.15s; }
+        .pipe-btn:hover { background: var(--primary-brand); color: #ffffff; border-color: var(--primary-brand); }
+        .pipe-btn.delete:hover { background: var(--red); border-color: var(--red); }
+
+        .portal-card { display: flex; align-items: center; gap: 16px; }
+        .portal-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--soft-blue), #dbeafe); color: var(--primary-brand); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; box-shadow: var(--shadow-subtle); }
+        .progress { height: 10px; background-color: var(--bg-main); border-radius: 6px; overflow: hidden; margin-top: 10px; border: 1px solid var(--border-color); }
+        .progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--primary-light), var(--primary-brand)); border-radius: 6px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* FORMULAIRES & MODALS */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label { font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
+        .field input, .field select, .field textarea { padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 13.5px; outline: none; font-family: inherit; background-color: #ffffff; color: var(--text-main); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary-light); box-shadow: 0 0 0 4px var(--accent-glow); }
+
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(9, 13, 22, 0.65); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .modal-box { background-color: var(--bg-card); width: 100%; max-width: 620px; border-radius: var(--radius-lg); padding: 30px; box-shadow: var(--shadow-hover); border: 1px solid var(--border-color); }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-head h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
+        .modal-head .close { background: var(--bg-main); border: 1px solid var(--border-color); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+        .modal-head .close:hover { background-color: var(--red-bg); color: var(--red); border-color: #fecaca; }
+
+        .toast { position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, var(--primary-sidebar), var(--primary-dark)); color: #ffffff; padding: 14px 24px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 500; box-shadow: var(--shadow-hover); z-index: 200; border-left: 5px solid var(--primary-light); }
+    </style>
+    
+    <!-- SDK SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // REDIRECTION AUTOMATIQUE SI NON CONNECTÉ (Protection de la page)
+        const SUPABASE_URL = 'https://horamhbkctywmrwdkkbh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvcmFtaGJrY3R5d21yd2Rra2JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2OTc1ODEsImV4cCI6MjEwOTI3MzU4MX0.WWySb_d91xntBywWGozWUabCUerScplGiLtHOyFXhAo';
+        window.supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        async function guardPage() {
+            const { data: { session } } = await window.supabaseInstance.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html'; // Renvoie vers le login
+            }
+        }
+        guardPage();
+    </script>
 </head>
 <body>
-<div class="app">
-    <!-- BARRE LATÉRALE (NAVIGATION) -->
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="logo">CT</div>
-            <div><strong>CAPITALE TT</strong><span>Gestion BTP intelligente</span></div>
-        </div>
-        <div>
-            <div class="nav-title">Pilotage</div>
-            <nav class="nav">
-                <button class="active" data-view="dashboard"><span class="icon">⌂</span>Accueil</button>
-                <button data-view="planning"><span class="icon">▦</span>Planning</button>
-                <button data-view="alertes"><span class="icon">!</span>Alertes & priorités</button>
-            </nav>
-            <div class="nav-title">Ressources</div>
-            <nav class="nav">
-                <button data-view="interimaires"><span class="icon">♙</span>Intérimaires</button>
-                <button data-view="clients"><span class="icon">▣</span>Clients & chantiers</button>
-                <button data-view="matching"><span class="icon">✦</span>Demandes & matching</button>
-            </nav>
-            <div class="nav-title">Développement commercial</div>
-            <nav class="nav">
-                <button data-view="commercial"><span class="icon">↗</span>Prospection & pipeline</button>
-                <button data-view="marches"><span class="icon">▤</span>Marchés publics</button>
-                <button data-view="marge"><span class="icon">€</span>Tarifs & marges</button>
-            </nav>
-            <div class="nav-title">Sécuriser l'activité</div>
-            <nav class="nav">
-                <button data-view="conformite"><span class="icon">✓</span>Conformité & risques</button>
-                <button data-view="logistique"><span class="icon">⌁</span>Logistique & EPI</button>
-                <button data-view="communication"><span class="icon">✉</span>Communication</button>
-            </nav>
-            <div class="nav-title">Accès rapides</div>
-            <nav class="nav"><button data-view="portails"><span class="icon">↗</span>Portails externes</button></nav>
-        </div>
-        <div class="sidebar-bottom">Version 5.0 — Supabase
-<span style="color:#69b0ff">Gérant connecté</span></div>
-    </aside>
-
-    <!-- ZONE PRINCIPALE -->
-    <main class="main">
-        <!-- BARRE SUPÉRIEURE -->
-        <header class="topbar">
-            <div class="breadcrumb">CAPITALE TT <span style="color:#b5c4d4">/</span> <strong id="crumb">Accueil</strong></div>
-            <div class="top-actions">
-                <span id="dbStatus" class="badge orange">Connexion Base...</span>
-                <input class="search" placeholder="Rechercher..." id="search">
-                <div class="avatar">JD</div>
+    <div class="app">
+        <!-- BARRE LATÉRALE -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo">CT</div>
+                <div>
+                    <strong>CAPITALE TT</strong>
+                    <span>Gestion BTP intelligente</span>
+                </div>
             </div>
-        </header>
+            <div class="nav-wrapper">
+                <div class="nav-title">Pilotage</div>
+                <nav class="nav">
+                    <button class="active" data-view="dashboard"><span class="icon">⌂</span>Accueil</button>
+                    <button data-view="planning"><span class="icon">▦</span>Planning</button>
+                    <button data-view="alertes"><span class="icon">!</span>Alertes & priorités</button>
+                </nav>
+                <div class="nav-title">Ressources</div>
+                <nav class="nav">
+                    <button data-view="interimaires"><span class="icon">♙</span>Intérimaires</button>
+                    <button data-view="clients"><span class="icon">▣</span>Clients & chantiers</button>
+                    <button data-view="matching"><span class="icon">✦</span>Demandes & matching</button>
+                </nav>
+                <div class="nav-title">Développement commercial</div>
+                <nav class="nav">
+                    <button data-view="commercial"><span class="icon">↗</span>Prospection & pipeline</button>
+                    <button data-view="marches"><span class="icon">▤</span>Marchés publics</button>
+                    <button data-view="marge"><span class="icon">€</span>Tarifs & marges</button>
+                </nav>
+                <div class="nav-title">Sécuriser l'activité</div>
+                <nav class="nav">
+                    <button data-view="conformite"><span class="icon">✓</span>Conformité & risques</button>
+                    <button data-view="logistique"><span class="icon">⌁</span>Logistique & EPI</button>
+                    <button data-view="communication"><span class="icon">✉</span>Communication</button>
+                </nav>
+                <div class="nav-title">Accès rapides</div>
+                <nav class="nav">
+                    <button data-view="portails"><span class="icon">↗</span>Portails externes</button>
+                </nav>
+            </div>
+            <div class="sidebar-bottom">
+                Version 5.0 <span class="badge-status">Gérant</span>
+            </div>
+        </aside>
 
-        <!-- CONTENU DYNAMIQUE -->
-        <div class="content">
-
-            <!-- 1. ACCUEIL (DASHBOARD) -->
-            <section class="view" id="dashboard">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow" id="currentDate"></div>
-                        <h1 class="page-title">Bonjour, Jean 👋</h1>
-                        <p class="page-sub">Voici ce qui mérite votre attention aujourd’hui.</p>
-                    </div>
-                    <div class="actions">
-                        <button class="btn light" onclick="openDemandeModal()">+ Créer une demande</button>
-                        <button class="btn primary" onclick="show('matching')">Voir les urgences</button>
-                    </div>
-                </div>
-                <div class="grid kpis">
-                    <div class="card"><div class="kpi-label">Missions actives</div><div class="kpi-value" id="kpiMissions">28</div><div class="kpi-foot">+4 cette semaine</div></div>
-                    <div class="card"><div class="kpi-label">Intérimaires disponibles</div><div class="kpi-value" id="kpiInterims">46</div><div class="kpi-foot">12 profils qualifiés BTP</div></div>
-                    <div class="card"><div class="kpi-label">Demandes à traiter</div><div class="kpi-value" id="kpiDemandes">7</div><div class="kpi-foot" style="color:var(--orange)">3 urgentes</div></div>
-                    <div class="card"><div class="kpi-label">Marge moyenne</div><div class="kpi-value" id="kpiMarge">5,20 €<small style="font-size:13px">/h</small></div><div class="kpi-foot">Objectif ≥ 4,50 €/h</div></div>
-                </div>
-                <div class="grid layout-2">
-                    <div class="card priority">
-                        <div class="section-title"><span>🎯 Priorité du jour</span><span class="badge red">URGENT</span></div>
-                        <h2>Pourvoir la demande VINCI — Maçon Coffreur N3</h2>
-                        <p>Un profil disponible, conforme et situé à 14 km est prêt à être proposé. La marge estimée est de <b>4,70 €/h</b>.</p>
-                        <button class="btn primary" onclick="show('matching')">Ouvrir la recommandation</button>
-                    </div>
-                    <div class="card">
-                        <div class="section-title"><span>⚠️ À traiter aujourd’hui</span><small onclick="show('alertes')">Tout voir</small></div>
-                        <div class="list" id="dashboardAlerts"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 2. PLANNING -->
-            <section class="view hidden" id="planning">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Opérations</div>
-                        <h1 class="page-title">Planning</h1>
-                        <p class="page-sub">Planification et affectation des missions en temps réel.</p>
-                    </div>
-                    <button class="btn primary" onclick="openPlanningModal()">+ Ajouter au planning</button>
-                </div>
-                <div class="card">
-                    <div class="section-title"><span>Vue hebdomadaire</span></div>
-                    <div class="table-wrap">
-                        <table class="table">
-                            <thead>
-                                <tr><th>Ressource / Action</th><th>Lun 21</th><th>Mar 22</th><th>Mer 23</th><th>Jeu 24</th><th>Ven 25</th></tr>
-                            </thead>
-                            <tbody id="planningBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 3. INTÉRIMAIRES -->
-            <section class="view hidden" id="interimaires">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Ressources</div>
-                        <h1 class="page-title">Intérimaires</h1>
-                        <p class="page-sub">Profils, compétences et conformité réglementaire.</p>
-                    </div>
-                    <button class="btn primary" onclick="openInterimaireModal()">+ Ajouter un intérimaire</button>
-                </div>
-                <div class="card">
-                    <div class="section-title"><span>Liste des collaborateurs disponibles</span></div>
-                    <div class="table-wrap">
-                        <table class="table">
-                            <thead>
-                                <tr><th>Collaborateur</th><th>Métier & Niveau</th><th>Disponibilité</th><th>Score Terrain</th><th>Conformité</th><th>Actions</th></tr>
-                            </thead>
-                            <tbody id="interimairesBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 4. CLIENTS & CHANTIERS -->
-            <section class="view hidden" id="clients">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Ressources</div>
-                        <h1 class="page-title">Clients & chantiers</h1>
-                        <p class="page-sub">Gestion des comptes, des chantiers actifs et de l'encours.</p>
-                    </div>
-                    <button class="btn primary" onclick="openClientModal()">+ Créer un client</button>
-                </div>
-                <div class="card">
-                    <div class="section-title"><span>Fiches clients enregistrées</span><small id="clientCount">0 client</small></div>
-                    <div class="table-wrap">
-                        <table class="table">
-                            <thead>
-                                <tr><th>Entreprise</th><th>Type</th><th>Contact principal</th><th>Potentiel TT</th><th>Statut</th><th>Actions</th></tr>
-                            </thead>
-                            <tbody id="clientsBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 5. MATCHING -->
-            <section class="view hidden" id="matching">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Opérations</div>
-                        <h1 class="page-title">Demandes & matching</h1>
-                        <p class="page-sub">Mettre en relation les besoins chantiers et les profils qualifiés.</p>
-                    </div>
-                    <button class="btn primary" onclick="openDemandeModal()">+ Saisir une demande</button>
-                </div>
-                <div class="grid layout-2">
-                    <div class="card">
-                        <div class="section-title"><span>Demandes actives</span></div>
-                        <div class="list" id="demandesList"></div>
-                    </div>
-                    <div class="card">
-                        <div class="section-title"><span>Recommandation automatique</span><span class="badge green">Score 94%</span></div>
-                        <div class="portal-card">
-                            <div class="portal-icon">JD</div>
-                            <div>
-                                <h3 style="margin:0;font-size:15px">Jean D. — INT-042</h3>
-                                <p style="margin:4px 0;color:var(--muted);font-size:12px">Maçon Coffreur N3 • 14 km • Disponible</p>
+        <!-- ZONE PRINCIPALE -->
+        <main class="main">
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="breadcrumb">CAPITALE TT <span class="sep">/</span> <strong id="crumb">Accueil</strong></div>
+                <div class="top-actions" style="position: relative;">
+                    <span id="dbStatus" class="badge green">Supabase Connecté</span>
+                    <input class="search" placeholder="Rechercher..." id="search">
+                    
+                    <!-- CENTRE DE NOTIFICATIONS / HISTORIQUE -->
+                    <div style="position: relative;">
+                        <button id="notifBtn" style="background:none; border:none; font-size:20px; cursor:pointer; position:relative; padding-top:4px;">
+                            🔔
+                            <span id="notifBadge" class="hidden" style="position:absolute; top:-2px; right:-6px; background:var(--red); color:white; font-size:10px; font-weight:bold; border-radius:50%; padding:2px 6px; box-shadow:0 0 0 2px var(--bg-card);">0</span>
+                        </button>
+                        
+                        <!-- Panneau déroulant -->
+                        <div id="notifPanel" class="card hidden" style="position:absolute; top:45px; right:0; width:340px; z-index:100; padding:0; display:flex; flex-direction:column; max-height:400px;">
+                            <div style="padding:16px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                                <h3 style="font-size:14px; font-weight:700; margin:0;">Historique d'activité</h3>
+                                <button type="button" onclick="clearHistory()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px; font-weight:600;">Tout effacer</button>
+                            </div>
+                            <div id="notifList" style="padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
+                                <p class="text-muted" style="text-align:center; font-size:13px; margin:0;">Aucune action récente.</p>
                             </div>
                         </div>
-                        <div class="alert blue" style="margin-top:16px">
-                            Pitch suggéré : "Profil très fiable, disponible immédiatement, habite à 14 km du chantier."
-                        </div>
-                        <div class="actions" style="margin-top:16px">
-                            <button class="btn primary" style="width:100%" onclick="toast('Proposition envoyée au client !')">✓ Envoyer cette proposition</button>
-                        </div>
                     </div>
+                    
+                    <div class="avatar" onclick="deconnexion()" title="Se déconnecter">JD</div>
                 </div>
-            </section>
+            </header>
 
-            <!-- 6. PROSPECTION -->
-            <section class="view hidden" id="commercial">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Développement</div>
-                        <h1 class="page-title">Prospection & pipeline</h1>
-                        <p class="page-sub">Suivi du tunnel de vente et des opportunités chantiers.</p>
-                    </div>
-                    <button class="btn primary" onclick="openProspectModal()">+ Capturer une opportunité</button>
-                </div>
-                <div class="card">
-                    <div class="section-title"><span>Pipeline commercial</span></div>
-                    <div class="pipeline" id="pipelineStages">
-                        <div class="stage" data-stage="Sourcé"><h4>Sourcé</h4><div class="stage-content"></div></div>
-                        <div class="stage" data-stage="Premier contact"><h4>Premier contact</h4><div class="stage-content"></div></div>
-                        <div class="stage" data-stage="RDV conducteur"><h4>RDV Conducteur</h4><div class="stage-content"></div></div>
-                        <div class="stage" data-stage="Devis"><h4>Devis</h4><div class="stage-content"></div></div>
-                        <div class="stage" data-stage="Négociation"><h4>Négociation</h4><div class="stage-content"></div></div>
-                        <div class="stage" data-stage="Contrat signé"><h4>Contrat signé</h4><div class="stage-content"></div></div>
-                        <div class="stage" data-stage="Perdu"><h4>Perdu</h4><div class="stage-content"></div></div>
-                    </div>
-                </div>
-            </section>
+            <!-- CONTENU DYNAMIQUE -->
+            <div class="content">
 
-            <!-- 7. MARCHÉS PUBLICS -->
-            <section class="view hidden" id="marches">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Développement</div>
-                        <h1 class="page-title">Marchés publics & insertion</h1>
-                        <p class="page-sub">Suivi des clauses sociales et justificatifs d'insertion.</p>
+                <!-- 1. ACCUEIL (DASHBOARD) -->
+                <section class="view" id="dashboard">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow" id="currentDate"></div>
+                            <h1 class="page-title">Bonjour, Jean 👋</h1>
+                            <p class="page-sub">Voici ce qui mérite votre attention aujourd’hui.</p>
+                        </div>
+                        <div class="actions">
+                            <button type="button" class="btn light" onclick="openDemandeModal()">+ Créer une demande</button>
+                            <button type="button" class="btn primary" onclick="show('matching')">Voir les urgences</button>
+                        </div>
                     </div>
-                </div>
-                <div class="grid layout-2">
+                    <div class="grid kpis">
+                        <div class="card"><div class="kpi-label">Missions actives</div><div class="kpi-value" id="kpiMissions">28</div><div class="kpi-foot">+4 cette semaine</div></div>
+                        <div class="card"><div class="kpi-label">Intérimaires disponibles</div><div class="kpi-value" id="kpiInterims">46</div><div class="kpi-foot">12 profils qualifiés BTP</div></div>
+                        <div class="card"><div class="kpi-label">Demandes à traiter</div><div class="kpi-value" id="kpiDemandes">7</div><div class="kpi-foot text-orange">3 urgentes</div></div>
+                        <div class="card"><div class="kpi-label">Marge moyenne</div><div class="kpi-value" id="kpiMarge">5,20 €<small>/h</small></div><div class="kpi-foot">Objectif ≥ 4,50 €/h</div></div>
+                    </div>
+                    <div class="grid layout-2">
+                        <div class="card priority">
+                            <div class="section-title"><span>🎯 Priorité du jour</span><span class="badge red">URGENT</span></div>
+                            <h2>Pourvoir la demande VINCI — Maçon Coffreur N3</h2>
+                            <p class="mt-8" style="color:var(--text-muted)">Un profil disponible, conforme et situé à 14 km est prêt à être proposé. La marge estimée est de <b>4,70 €/h</b>.</p>
+                            <button type="button" class="btn primary mt-16" onclick="show('matching')">Ouvrir la recommandation</button>
+                        </div>
+                        <div class="card">
+                            <div class="section-title"><span>⚠️ À traiter aujourd’hui</span><small onclick="show('alertes')">Tout voir</small></div>
+                            <div class="list" id="dashboardAlerts">
+                                <div class="row"><div><h4>INT-155 (Michel T.)</h4><p>Visite médicale expirée</p></div><span class="badge red">Bloqué</span></div>
+                                <div class="row"><div><h4>CLI-104 (BTP-West)</h4><p>Encours dépassé (15K€)</p></div><span class="badge orange">Risque</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. PLANNING -->
+                <section class="view hidden" id="planning">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Opérations</div>
+                            <h1 class="page-title">Planning</h1>
+                            <p class="page-sub">Planification et affectation des missions en temps réel.</p>
+                        </div>
+                        <button type="button" class="btn primary" onclick="openPlanningModal()">+ Ajouter au planning</button>
+                    </div>
                     <div class="card">
-                        <div class="section-title"><span>Appels d'offres détectés</span></div>
+                        <div class="section-title"><span>Vue hebdomadaire</span></div>
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr><th>Ressource / Action</th><th>Lun 21</th><th>Mar 22</th><th>Mer 23</th><th>Jeu 24</th><th>Ven 25</th></tr>
+                                </thead>
+                                <tbody id="planningBody">
+                                    <tr><td><b>Jean D. (Maçon)</b></td><td><span class="badge blue">Chantier VINCI</span></td><td><span class="badge blue">Chantier VINCI</span></td><td><span class="badge blue">Chantier VINCI</span></td><td><span class="badge blue">Chantier VINCI</span></td><td><span class="badge blue">Chantier VINCI</span></td></tr>
+                                    <tr><td><b>Marc L. (Coffreur)</b></td><td><span class="badge green">Disponible</span></td><td><span class="badge orange">Formation EPI</span></td><td><span class="badge blue">Eiffage VRD</span></td><td><span class="badge blue">Eiffage VRD</span></td><td><span class="badge blue">Eiffage VRD</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. INTÉRIMAIRES -->
+                <section class="view hidden" id="interimaires">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Ressources</div>
+                            <h1 class="page-title">Intérimaires</h1>
+                            <p class="page-sub">Profils, compétences et conformité réglementaire.</p>
+                        </div>
+                        <button type="button" class="btn primary" onclick="openInterimaireModal()">+ Ajouter un intérimaire</button>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Liste des collaborateurs disponibles</span></div>
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr><th>Collaborateur</th><th>Métier & Niveau</th><th>Disponibilité</th><th>Score Terrain</th><th>Conformité</th><th>Actions</th></tr>
+                                </thead>
+                                <tbody id="interimairesBody">
+                                    <!-- Rempli par défaut ou par Supabase -->
+                                    <tr>
+                                        <td><b>Jean Dupont</b></td>
+                                        <td>Maçon Coffreur N3</td>
+                                        <td><span class="badge green">Immédiate</span></td>
+                                        <td>4.9 / 5</td>
+                                        <td><span class="badge green">Conforme</span></td>
+                                        <td><button type="button" class="btn light" onclick="openInterimaireProfile(this)">Voir</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><b>Michel Tartas</b></td>
+                                        <td>Grutier N4</td>
+                                        <td><span class="badge red">Bloqué</span></td>
+                                        <td>4.2 / 5</td>
+                                        <td><span class="badge red">Visite expirée</span></td>
+                                        <td><button type="button" class="btn light" onclick="openInterimaireProfile(this)">Voir</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. CLIENTS & CHANTIERS -->
+                <section class="view hidden" id="clients">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Ressources</div>
+                            <h1 class="page-title">Clients & chantiers</h1>
+                            <p class="page-sub">Gestion des comptes, des chantiers actifs et de l'encours.</p>
+                        </div>
+                        <button type="button" class="btn primary" onclick="openClientModal()">+ Créer un client</button>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Fiches clients enregistrées</span><small id="clientCount">Chargement...</small></div>
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr><th>Entreprise</th><th>Type</th><th>Contact principal</th><th>Potentiel TT</th><th>Statut</th><th>Actions</th></tr>
+                                </thead>
+                                <tbody id="clientsBody">
+                                    <!-- Sera rempli automatiquement depuis Supabase par chargerClientsSupabase() -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. MATCHING -->
+                <section class="view hidden" id="matching">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Opérations</div>
+                            <h1 class="page-title">Demandes & matching</h1>
+                            <p class="page-sub">Mettre en relation les besoins chantiers et les profils qualifiés.</p>
+                        </div>
+                        <button type="button" class="btn primary" onclick="openDemandeModal()">+ Saisir une demande</button>
+                    </div>
+                    <div class="grid layout-2">
+                        <div class="card">
+                            <div class="section-title"><span>Demandes actives</span></div>
+                            <div class="list" id="demandesList">
+                                <div class="row"><div><h4>VINCI — Maçon Coffreur N3</h4><p>Démarrage : Demain • Versailles</p></div><span class="badge red">Urgent</span></div>
+                                <div class="row"><div><h4>Bouygues — Grutier CACES R487</h4><p>Démarrage : Lundi prochain • Paris 13</p></div><span class="badge blue">Normal</span></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="section-title"><span>Recommandation automatique</span><span class="badge green">Score 94%</span></div>
+                            <div class="portal-card">
+                                <div class="portal-icon">JD</div>
+                                <div>
+                                    <h3 style="font-size:15px; font-weight:700;">Jean D. — INT-042</h3>
+                                    <p class="text-muted">Maçon Coffreur N3 • 14 km • Disponible</p>
+                                </div>
+                            </div>
+                            <div class="alert blue mt-16">
+                                Pitch suggéré : "Profil très fiable, disponible immédiatement, habite à 14 km du chantier."
+                            </div>
+                            <div class="actions mt-16">
+                                <button type="button" class="btn primary full-width" onclick="toast('Proposition envoyée au client !')">✓ Envoyer cette proposition</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. PROSPECTION -->
+                <section class="view hidden" id="commercial">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Développement</div>
+                            <h1 class="page-title">Prospection & pipeline</h1>
+                            <p class="page-sub">Suivi du tunnel de vente et des opportunités chantiers.</p>
+                        </div>
+                        <button type="button" class="btn primary" onclick="openProspectModal()">+ Capturer une opportunité</button>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Pipeline commercial</span></div>
+                        <div class="pipeline" id="pipelineStages">
+                            <div class="stage" data-stage="Sourcé"><h4>Sourcé</h4><div class="stage-content"><div class="alert blue mt-8" style="padding:10px; font-size:12px;">Nouveau chantier A13</div></div></div>
+                            <div class="stage" data-stage="Premier contact"><h4>Premier contact</h4><div class="stage-content"></div></div>
+                            <div class="stage" data-stage="RDV conducteur"><h4>RDV Conducteur</h4><div class="stage-content"><div class="alert green mt-8" style="padding:10px; font-size:12px;">Eiffage VRD</div></div></div>
+                            <div class="stage" data-stage="Devis"><h4>Devis</h4><div class="stage-content"></div></div>
+                            <div class="stage" data-stage="Négociation"><h4>Négociation</h4><div class="stage-content"></div></div>
+                            <div class="stage" data-stage="Contrat signé"><h4>Contrat signé</h4><div class="stage-content"></div></div>
+                            <div class="stage" data-stage="Perdu"><h4>Perdu</h4><div class="stage-content"></div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. MARCHÉS PUBLICS -->
+                <section class="view hidden" id="marches">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Développement</div>
+                            <h1 class="page-title">Marchés publics & insertion</h1>
+                            <p class="page-sub">Suivi des clauses sociales et justificatifs d'insertion.</p>
+                        </div>
+                    </div>
+                    <div class="grid layout-2">
+                        <div class="card">
+                            <div class="section-title"><span>Appels d'offres détectés</span></div>
+                            <div class="list">
+                                <div class="row"><div><h4>Collège Versailles — Gros Œuvre</h4><p>Titulaire : Bouygues Bâtiment IDF</p></div><span class="badge green">Vérifié</span></div>
+                                <div class="row"><div><h4>Réhabilitation A13 — VRD</h4><p>Titulaire : Eiffage Route • 120h d'insertion</p></div><span class="badge orange">À contacter</span></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="section-title"><span>Clause d'insertion</span><small>Projet Versailles</small></div>
+                            <div class="kpi-value">684 h <small style="font-size:14px; color:var(--text-muted)">/ 900 h</small></div>
+                            <div class="progress"><span style="width:76%"></span></div>
+                            <p class="text-muted mt-12">Pièces validées : DC4, Attestations URSSAF.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. TARIFS & MARGES -->
+                <section class="view hidden" id="marge">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Rentabilité</div>
+                            <h1 class="page-title">Tarifs & marges</h1>
+                            <p class="page-sub">Calculateur de marge brute et barèmes conseillés.</p>
+                        </div>
+                        <button type="button" class="btn primary" onclick="openBaremeModal()">+ Ajouter un barème</button>
+                    </div>
+                    <div class="grid layout-2">
+                        <div class="card">
+                            <div class="section-title"><span>Calculateur de marge</span><span class="badge green">Seuil : 4,50 €/h</span></div>
+                            <div class="form-grid">
+                                <div class="field"><label>Prix de vente (€/h)</label><input id="sell" type="number" value="28.50" step="0.10"></div>
+                                <div class="field"><label>Coût chargé (€/h)</label><input id="cost" type="number" value="23.80" step="0.10"></div>
+                            </div>
+                            <div id="marginBox" class="alert green mt-16">
+                                <span>Marge brute estimée :</span><b id="margin">4,70 €/h — Conforme</b>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="section-title"><span>Barèmes par métier</span></div>
+                            <table class="table">
+                                <thead><tr><th>Métier</th><th>Niveau</th><th>Prix Vente</th><th>Marge</th></tr></thead>
+                                <tbody id="baremeBody">
+                                    <tr><td>Maçon Coffreur</td><td>N3P2</td><td>28.50 €</td><td>4.70 €/h</td></tr>
+                                    <tr><td>Grutier</td><td>N4</td><td>34.00 €</td><td>6.20 €/h</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 9. CONFORMITÉ & RISQUES -->
+                <section class="view hidden" id="conformite">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Sécurité</div>
+                            <h1 class="page-title">Conformité & risques</h1>
+                            <p class="page-sub">Blocages automatiques en cas de dossiers périmés ou d'encours dépassés.</p>
+                        </div>
+                    </div>
+                    <div class="grid layout-2">
+                        <div class="card">
+                            <div class="section-title"><span>Blocages actifs</span></div>
+                            <div class="list">
+                                <div class="alert red"><span><b>INT-155 (Michel T.)</b> — Visite médicale expirée</span><b>BLOQUÉ</b></div>
+                                <div class="alert red"><span><b>CLI-104 (BTP-West)</b> — Encours dépassé</span><b>BLOQUÉ</b></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="section-title"><span>Règles de sécurité</span></div>
+                            <div class="list">
+                                <div class="row"><div><h4>Document expiré</h4><p>Empêche automatiquement l'affectation</p></div><span class="badge green">Actif</span></div>
+                                <div class="row"><div><h4>Client bloqué</h4><p>Bloque l'émission de nouveaux contrats</p></div><span class="badge green">Actif</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 10. LOGISTIQUE & EPI -->
+                <section class="view hidden" id="logistique">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Opérations</div>
+                            <h1 class="page-title">Logistique & EPI</h1>
+                            <p class="page-sub">Calcul de zones de déplacement et suivi des équipements de sécurité.</p>
+                        </div>
+                    </div>
+                    <div class="grid layout-3">
+                        <div class="card">
+                            <div class="section-title"><span>Zones de trajet</span></div>
+                            <div class="form-grid">
+                                <div class="field" style="grid-column:1/-1"><label>Distance domicile-chantier (km)</label><input id="distance" type="number" value="14"></div>
+                            </div>
+                            <div id="zoneBox" class="alert green mt-14"><span id="zone">Zone 2 • Dans le rayon</span></div>
+                        </div>
+                        <div class="card">
+                            <div class="section-title"><span>Bons EPI émis</span></div>
+                            <div class="list">
+                                <div class="row"><div><h4>Jean D.</h4><p>Chaussures S3, Casque, Gants</p></div><span class="badge green">Livré</span></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="section-title"><span>Intempéries</span></div>
+                            <div class="kpi-value">2 arrêts</div>
+                            <p class="text-muted">16 heures déclarées à la caisse BTP ce mois-ci.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 11. COMMUNICATION -->
+                <section class="view hidden" id="communication">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Relations</div>
+                            <h1 class="page-title">Communication</h1>
+                            <p class="page-sub">Historique des e-mails et fiches de synthèse avant appel.</p>
+                        </div>
+                    </div>
+                    <div class="grid layout-2">
+                        <div class="card">
+                            <div class="section-title"><span>Boîte de réception intelligente</span></div>
+                            <div class="list">
+                                <div class="row"><div><h4>01_URGENCES_CHANTIERS</h4><p>Besoin Maçon Coffreur N3 — Versailles</p></div><span class="badge red">1</span></div>
+                                <div class="row"><div><h4>02_FEUILLES_HEURES_PAIE</h4><p>Feuilles de la semaine à contrôler</p></div><span class="badge blue">14</span></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="section-title"><span>Fiche flash avant appel</span><span class="badge orange">11h45</span></div>
+                            <div class="alert blue"><span><b>Historique :</b> Dernier contact il y a 3 jours</span></div>
+                            <div class="alert green mt-8"><span><b>Argumentaire :</b> Jean D. disponible immédiatement (noté 4,9/5)</span></div>
+                            <button type="button" class="btn primary full-width mt-16" onclick="toast('Lancement de l\'appel...')">Lancer l'appel</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 12. PORTAILS EXTERNES -->
+                <section class="view hidden" id="portails">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Accès</div>
+                            <h1 class="page-title">Portails externes</h1>
+                            <p class="page-sub">Accès rapides vers vos plateformes et applications web.</p>
+                        </div>
+                    </div>
+                    <div class="grid layout-2">
+                        <!-- CARTE CAPDISPO -->
+                        <div class="card">
+                            <div class="portal-card">
+                                <div class="portal-icon">♙</div>
+                                <div>
+                                    <h2 style="font-size:16px;">CapDispo TT</h2>
+                                    <p class="text-muted">Plateforme de déclaration de disponibilité.</p>
+                                </div>
+                            </div>
+                            <p class="text-muted mt-16" style="font-size:13.5px; line-height:1.6;">
+                                Espace dédié permettant aux collaborateurs intérimaires de mettre à jour leur statut et d'indiquer leurs dates de disponibilité en temps réel.
+                            </p>
+                            <div class="mt-18">
+                                <a href="https://capdispott.netlify.app/index.html" target="_blank" style="text-decoration: none;">
+                                    <button type="button" class="btn primary full-width">Ouvrir CapDispo ↗</button>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- CARTE PORTAIL CLIENT B2B -->
+                        <div class="card">
+                            <div class="portal-card">
+                                <div class="portal-icon">▣</div>
+                                <div>
+                                    <h2 style="font-size:16px;">Portail Client (B2B)</h2>
+                                    <p class="text-muted">Espace de commande client.</p>
+                                </div>
+                            </div>
+                            <p class="text-muted mt-16" style="font-size:13.5px; line-height:1.6;">
+                                Interface de recrutement permettant aux entreprises partenaires de formuler de nouveaux besoins en personnel directement auprès de l'agence.
+                            </p>
+                            <div class="mt-18">
+                                <button type="button" class="btn light full-width" onclick="toast('Lien client à configurer')">Site Client B2B ↗</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 13. ALERTES -->
+                <section class="view hidden" id="alertes">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">Pilotage</div>
+                            <h1 class="page-title">Alertes & priorités</h1>
+                            <p class="page-sub">Toutes les actions nécessitant une attention immédiate.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-title"><span>Centre de contrôle</span></div>
                         <div class="list">
-                            <div class="row"><div><h4>Collège Versailles — Gros Œuvre</h4><p>Titulaire : Bouygues Bâtiment IDF</p></div><span class="badge green">Vérifié</span></div>
-                            <div class="row"><div><h4>Réhabilitation A13 — VRD</h4><p>Titulaire : Eiffage Route • 120h d'insertion</p></div><span class="badge orange">À contacter</span></div>
+                            <div class="alert red"><span><b>Affectation bloquée :</b> INT-155 — Visite médicale expirée</span><button type="button" class="btn" onclick="toast('Alerte traitée')">Traiter</button></div>
+                            <div class="alert red"><span><b>Client bloqué :</b> CLI-104 — Encours dépassé</span><button type="button" class="btn" onclick="show('clients')">Voir la fiche</button></div>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="section-title"><span>Clause d'insertion</span><small>Projet Versailles</small></div>
-                        <div class="kpi-value">684 h <small style="font-size:13px">/ 900 h</small></div>
-                        <div class="progress"><span style="width:76%"></span></div>
-                        <p style="font-size:12px;color:var(--muted);margin-top:12px">Pièces validées : DC4, Attestations URSSAF.</p>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- 8. TARIFS & MARGES -->
-            <section class="view hidden" id="marge">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Rentabilité</div>
-                        <h1 class="page-title">Tarifs & marges</h1>
-                        <p class="page-sub">Calculateur de marge brute et barèmes conseillés.</p>
-                    </div>
-                    <button class="btn primary" onclick="openBaremeModal()">+ Ajouter un barème</button>
-                </div>
-                <div class="grid layout-2">
-                    <div class="card">
-                        <div class="section-title"><span>Calculateur de marge</span><span class="badge green">Seuil : 4,50 €/h</span></div>
-                        <div class="form-grid">
-                            <div class="field"><label>Prix de vente (€/h)</label><input id="sell" type="number" value="28.50"></div>
-                            <div class="field"><label>Coût chargé (€/h)</label><input id="cost" type="number" value="23.80"></div>
-                        </div>
-                        <div id="marginBox" class="alert green" style="margin-top:16px">
-                            <span>Marge brute estimée</span><b id="margin">4,70 €/h — Conforme</b>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="section-title"><span>Barèmes par métier</span></div>
-                        <table class="table">
-                            <thead><tr><th>Métier</th><th>Niveau</th><th>Prix Vente</th><th>Marge</th></tr></thead>
-                            <tbody id="baremeBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+            </div>
+        </main>
+    </div>
 
-            <!-- 9. CONFORMITÉ & RISQUES -->
-            <section class="view hidden" id="conformite">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Sécurité</div>
-                        <h1 class="page-title">Conformité & risques</h1>
-                        <p class="page-sub">Blocages automatiques en cas de dossiers périmés ou d'encours dépassés.</p>
-                    </div>
+    <!-- MODALS -->
+    <div id="clientModal" class="modal hidden">
+        <div class="modal-box">
+            <div class="modal-head"><h2 id="clientModalTitle">Créer un client</h2><button type="button" class="close" onclick="closeClientModal()">×</button></div>
+            <form id="clientForm">
+                <input type="hidden" id="clientId">
+                <div class="form-grid">
+                    <div class="field"><label>Type *</label><select id="clientType" required><option>Prospect</option><option>Client actif</option><option>Client à risque</option></select></div>
+                    <div class="field"><label>Raison sociale *</label><input id="company" required></div>
+                    <div class="field"><label>Activité principale</label><input id="activity"></div>
+                    <div class="field"><label>Téléphone</label><input id="phone"></div>
+                    <div class="field"><label>E-mail général</label><input id="email" type="email"></div>
+                    <div class="field"><label>Adresse</label><input id="address"></div>
+                    <div class="field"><label>Code postal</label><input id="postal"></div>
+                    <div class="field"><label>Ville</label><input id="city"></div>
+                    <div class="field"><label>SIRET</label><input id="siret"></div>
+                    <div class="field"><label>Potentiel TT</label><input id="potentialTT" type="number" value="0"></div>
+                    <div class="field"><label>Statut</label><select id="clientStatus"><option>Actif</option><option>Bloqué</option><option>À qualifier</option></select></div>
                 </div>
-                <div class="grid layout-2">
-                    <div class="card">
-                        <div class="section-title"><span>Blocages actifs</span></div>
-                        <div class="list">
-                            <div class="alert red"><span><b>INT-155 (Michel T.)</b> — Visite médicale expirée</span><b>BLOQUÉ</b></div>
-                            <div class="alert red"><span><b>CLI-104 (BTP-West)</b> — Encours dépassé</span><b>BLOQUÉ</b></div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="section-title"><span>Règles de sécurité</span></div>
-                        <div class="list">
-                            <div class="row"><div><h4>Document expiré</h4><p>Empêche automatiquement l'affectation</p></div><span class="badge green">Actif</span></div>
-                            <div class="row"><div><h4>Client bloqué</h4><p>Bloque l'émission de nouveaux contrats</p></div><span class="badge green">Actif</span></div>
-                        </div>
-                    </div>
+                <div class="actions flex-end mt-18 gap-10">
+                    <button type="button" class="btn" onclick="closeClientModal()">Annuler</button>
+                    <button type="submit" class="btn primary">Enregistrer</button>
                 </div>
-            </section>
+            </form>
+        </div>
+    </div>
 
-            <!-- 10. LOGISTIQUE & EPI -->
-            <section class="view hidden" id="logistique">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Opérations</div>
-                        <h1 class="page-title">Logistique & EPI</h1>
-                        <p class="page-sub">Calcul de zones de déplacement et suivi des équipements de sécurité.</p>
+    <!-- MODALE DOSSIER & CONTENTIEUX CLIENT -->
+    <div id="dossierModal" class="modal hidden">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h2 id="dossierModalTitle">Dossier Client & Encours</h2>
+                <button type="button" class="close" onclick="closeDossierModal()">×</button>
+            </div>
+            <div id="dossierContent">
+                <div class="alert red" id="dossierAlertBox">
+                    <span><b>Statut financier :</b> Encours maximum dépassé (15 000 € / plafond 10 000 €)</span>
+                    <b id="dossierBadgeStatus">BLOQUÉ</b>
+                </div>
+                <div class="grid layout-2 mt-16" style="margin-bottom: 16px; gap: 14px;">
+                    <div class="card" style="padding: 16px;">
+                        <div class="kpi-label">Encours facturé</div>
+                        <div class="kpi-value" style="font-size: 22px;" id="dossierEncours">15 400 €</div>
+                        <div class="text-muted">2 factures échues (> 45j)</div>
+                    </div>
+                    <div class="card" style="padding: 16px;">
+                        <div class="kpi-label">Contact Comptabilité</div>
+                        <div style="font-weight: 700; font-size: 15px; margin-top: 8px;" id="dossierContact">Ahmadi R.</div>
+                        <div class="text-muted">Relancé il y a 5 jours</div>
                     </div>
                 </div>
-                <div class="grid layout-3">
-                    <div class="card">
-                        <div class="section-title"><span>Zones de trajet</span></div>
-                        <div class="form-grid">
-                            <div class="field"><label>Distance domicile-chantier (km)</label><input id="distance" type="number" value="14"></div>
-                        </div>
-                        <div class="alert green" style="margin-top:14px"><span id="zone">Zone 2 • Dans le rayon</span></div>
-                    </div>
-                    <div class="card">
-                        <div class="section-title"><span>Bons EPI émis</span></div>
-                        <div class="list">
-                            <div class="row"><div><h4>Jean D.</h4><p>Chaussures S3, Casque, Gants</p></div><span class="badge green">Livré</span></div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="section-title"><span>Intempéries</span></div>
-                        <div class="kpi-value">2 arrêts</div><p style="font-size:12px;color:var(--muted)">16 heures déclarées à la caisse BTP ce mois-ci.</p>
-                    </div>
+                <div class="field">
+                    <label>Note de suivi / Historique du dossier</label>
+                    <textarea id="dossierNotes" rows="3">Blocage automatique des nouvelles affectations d'intérimaires suite au dépassement d'encours assurance-crédit. En attente du virement de régularisation.</textarea>
                 </div>
-            </section>
+                <div class="actions flex-end mt-18 gap-10">
+                    <button type="button" class="btn" onclick="closeDossierModal()">Fermer</button>
+                    <button type="button" class="btn light" onclick="relancerClientDossier()">✉ Envoyer relance compta</button>
+                    <button type="button" class="btn primary" id="btnDebloquerClient" onclick="debloquerClientDossier()">✓ Régulariser & Débloquer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <!-- 11. COMMUNICATION -->
-            <section class="view hidden" id="communication">
-                <div class="page-head">
+    <!-- MODALE FICHE INTÉRIMAIRE -->
+    <div id="interimaireProfileModal" class="modal hidden">
+        <div class="modal-box" style="max-width: 680px;">
+            <div class="modal-head">
+                <h2 id="profileModalTitle">Fiche Collaborateur</h2>
+                <button type="button" class="close" onclick="closeInterimaireProfileModal()">×</button>
+            </div>
+            <div>
+                <div class="portal-card" style="margin-bottom: 20px;">
+                    <div class="portal-icon" id="profileInitials">JD</div>
                     <div>
-                        <div class="eyebrow">Relations</div>
-                        <h1 class="page-title">Communication</h1>
-                        <p class="page-sub">Historique des e-mails et fiches de synthèse avant appel.</p>
+                        <h3 id="profileName" style="font-size: 18px; font-weight: 800;">Jean Dupont</h3>
+                        <p class="text-muted" id="profileRole">Maçon Coffreur N3 • Matricule : INT-042</p>
                     </div>
                 </div>
-                <div class="grid layout-2">
-                    <div class="card">
-                        <div class="section-title"><span>Boîte de réception intelligente</span></div>
-                        <div class="list">
-                            <div class="row"><div><h4>01_URGENCES_CHANTIERS</h4><p>Besoin Maçon Coffreur N3 — Versailles</p></div><span class="badge red">1</span></div>
-                            <div class="row"><div><h4>02_FEUILLES_HEURES_PAIE</h4><p>Feuilles de la semaine à contrôler</p></div><span class="badge blue">14</span></div>
-                        </div>
+                <div class="grid layout-2" style="gap: 14px; margin-bottom: 16px;">
+                    <div class="card" style="padding: 16px;">
+                        <div class="kpi-label">Disponibilité</div>
+                        <div style="font-weight: 700; font-size: 15px; margin-top: 4px;" id="profileDispo">Immédiate</div>
                     </div>
-                    <div class="card">
-                        <div class="section-title"><span>Fiche flash avant appel</span><span class="badge orange">11h45</span></div>
-                        <div class="alert blue"><span><b>Historique :</b> Dernier contact il y a 3 jours</span></div>
-                        <div class="alert green"><span><b>Argumentaire :</b> Jean D. disponible immédiatement (noté 4,9/5)</span></div>
-                        <button class="btn primary" style="width:100%" onclick="toast('Lancement de l\'appel...')">Lancer l'appel</button>
+                    <div class="card" style="padding: 16px;">
+                        <div class="kpi-label">Score Terrain</div>
+                        <div style="font-weight: 700; font-size: 15px; color: var(--green); margin-top: 4px;" id="profileScore">4.9 / 5</div>
                     </div>
                 </div>
-            </section>
-
-            <!-- 12. PORTAILS EXTERNES -->
-            <section class="view hidden" id="portails">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Accès</div>
-                        <h1 class="page-title">Portails externes</h1>
-                        <p class="page-sub">Simulateurs d'espaces pour vos clients et intérimaires.</p>
-                    </div>
-                </div>
-                <div class="grid layout-2">
-                    <div class="card">
-                        <div class="portal-card"><div class="portal-icon">♙</div><div><h2>Portail Intérimaire</h2><p>Déclarer une disponibilité.</p></div></div>
-                        <div class="form-grid" style="margin-top:18px">
-                            <div class="field"><label>Matricule</label><input value="INT-042"></div>
-                            <div class="field"><label>Nouveau statut</label><select><option>Disponible immédiatement</option><option>En mission</option></select></div>
-                        </div>
-                        <button class="btn primary" style="margin-top:14px" onclick="toast('Statut mis à jour !')">Enregistrer la disponibilité</button>
-                    </div>
-                    <div class="card">
-                        <div class="portal-card"><div class="portal-icon">▣</div><div><h2>Portail Client</h2><p>Formuler un besoin de personnel.</p></div></div>
-                        <div class="form-grid" style="margin-top:18px">
-                            <div class="field"><label>Entreprise</label><input value="VINCI Construction"></div>
-                            <div class="field"><label>Métier recherché</label><input value="Grutier"></div>
-                        </div>
-                        <button class="btn primary" style="margin-top:14px" onclick="toast('Demande soumise à l\'agence !')">Soumettre la demande</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 13. ALERTES -->
-            <section class="view hidden" id="alertes">
-                <div class="page-head">
-                    <div>
-                        <div class="eyebrow">Pilotage</div>
-                        <h1 class="page-title">Alertes & priorités</h1>
-                        <p class="page-sub">Toutes les actions nécessitant une attention immédiate.</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="section-title"><span>Centre de contrôle</span></div>
+                <div class="card" style="padding: 16px; margin-bottom: 16px;">
+                    <div class="section-title" style="margin-bottom: 10px; font-size: 14px;"><span>Dossier de conformité & Pièces</span></div>
                     <div class="list">
-                        <div class="alert red"><span><b>Affectation bloquée :</b> INT-155 — Visite médicale expirée</span><button class="btn" onclick="toast('Alerte traitée')">Traiter</button></div>
-                        <div class="alert red"><span><b>Client bloqué :</b> CLI-104 — Encours dépassé</span><button class="btn" onclick="show('clients')">Voir la fiche</button></div>
+                        <div class="row"><div><h4>Pièce d'identité & Permis</h4><p>Vérifiés et valides</p></div><span class="badge green">Conforme</span></div>
+                        <div class="row"><div><h4>Visite médicale du travail</h4><p id="profileMedicalText">À jour (Renouvellement annuel)</p></div><span class="badge green" id="profileMedicalBadge">Valide</span></div>
+                        <div class="row"><div><h4>Habilitations & CACES</h4><p>Échafaudage, Port du harnais</p></div><span class="badge green">Vérifié</span></div>
                     </div>
                 </div>
-            </section>
-
+                <div class="actions flex-end mt-18 gap-10">
+                    <button type="button" class="btn" onclick="closeInterimaireProfileModal()">Fermer</button>
+                    <button type="button" class="btn light" onclick="toast('Dossier partagé par e-mail !')">✉ Envoyer le dossier</button>
+                    <button type="button" class="btn primary" onclick="toast('Affectation rapide initiée !')">🚀 Proposer sur un chantier</button>
+                </div>
+            </div>
         </div>
-    </main>
-</div>
+    </div>
 
-<!-- ================= MODALS ================= -->
-
-<!-- Modal Client avec onglets -->
-<div id="clientModal" class="modal hidden">
-    <div class="modal-box client-modal-box">
-        <div class="modal-head">
-            <h2 id="clientModalTitle">Créer un client</h2>
-            <button class="close" type="button" onclick="closeClientModal()">×</button>
+    <div id="interimaireModal" class="modal hidden">
+        <div class="modal-box">
+            <div class="modal-head"><h2>Ajouter un intérimaire</h2><button type="button" class="close" onclick="closeInterimaireModal()">×</button></div>
+            <form id="interimaireForm">
+                <div class="form-grid">
+                    <div class="field"><label>Nom *</label><input id="intNom" required></div>
+                    <div class="field"><label>Prénom *</label><input id="intPrenom" required></div>
+                    <div class="field"><label>Métier & Niveau *</label><input id="intMetier" placeholder="Ex: Maçon N3" required></div>
+                    <div class="field"><label>Disponibilité</label><select id="intDispo"><option>Immédiate</option><option>En mission</option><option>En formation</option></select></div>
+                    <div class="field"><label>Score terrain</label><input id="intScore" type="number" step="0.1" value="4.5"></div>
+                    <div class="field"><label>Conformité</label><select id="intConformite"><option>Conforme</option><option>CACES à renouveler</option><option>Visite médicale expirée</option></select></div>
+                </div>
+                <div class="actions flex-end mt-18 gap-10">
+                    <button type="button" class="btn" onclick="closeInterimaireModal()">Annuler</button>
+                    <button type="submit" class="btn primary">Enregistrer</button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <div class="client-tabs">
-            <button type="button" class="client-tab active" data-tab="client-general">Informations générales</button>
-            <button type="button" class="client-tab" data-tab="client-commercial">Commercial</button>
-            <button type="button" class="client-tab" data-tab="client-finance">Facturation & risque</button>
-            <button type="button" class="client-tab" data-tab="client-contacts">Contacts</button>
-            <button type="button" class="client-tab" data-tab="client-chantiers">Chantiers</button>
+    <div id="demandeModal" class="modal hidden">
+        <div class="modal-box">
+            <div class="modal-head"><h2>Saisir une demande</h2><button type="button" class="close" onclick="closeDemandeModal()">×</button></div>
+            <form id="demandeForm">
+                <div class="form-grid">
+                    <div class="field"><label>Client *</label><input id="demandeClient" placeholder="Ex: VINCI" required></div>
+                    <div class="field"><label>Métier recherché *</label><input id="demandeMetier" required></div>
+                    <div class="field"><label>Démarrage *</label><input id="demandeStart" type="date" required></div>
+                    <div class="field"><label>Urgence</label><select id="demandeUrgence"><option>Normal</option><option>Urgent</option></select></div>
+                </div>
+                <div class="actions flex-end mt-18 gap-10">
+                    <button type="button" class="btn" onclick="closeDemandeModal()">Annuler</button>
+                    <button type="submit" class="btn primary">Enregistrer</button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <form id="clientForm" autocomplete="off">
-            <input type="hidden" id="clientId" name="id">
-
-            <div class="client-tab-panel active" id="client-general">
+    <div id="prospectModal" class="modal hidden">
+        <div class="modal-box">
+            <div class="modal-head"><h2>Capturer une opportunité</h2><button type="button" class="close" onclick="closeProspectModal()">×</button></div>
+            <form id="prospectForm" autocomplete="off">
+                <input type="hidden" id="prospectId" name="id">
                 <div class="form-grid">
-                    <div class="field"><label>Type *</label><select id="clientType" name="type" required>
-                        <option value="Prospect">Prospect</option><option value="Client actif">Client actif</option>
-                        <option value="Ancien client">Ancien client</option><option value="Client à risque">Client à risque</option><option value="Partenaire">Partenaire</option>
-                    </select></div>
-                    <div class="field"><label>Statut</label><select id="clientStatus" name="status">
-                        <option value="À qualifier">À qualifier</option><option value="Actif">Actif</option><option value="Bloqué">Bloqué</option><option value="À risque">À risque</option><option value="Inactif">Inactif</option>
-                    </select></div>
-                    <div class="field"><label>Raison sociale *</label><input id="company" name="company" required></div>
-                    <div class="field"><label>Activité principale</label><input id="activity" name="activity"></div>
-                    <div class="field"><label>Téléphone</label><input id="phone" name="phone"></div>
-                    <div class="field"><label>E-mail général</label><input id="email" name="email" type="email"></div>
-                    <div class="field"><label>Adresse</label><input id="address" name="address"></div>
-                    <div class="field"><label>Code postal</label><input id="postal" name="postal"></div>
-                    <div class="field"><label>Ville</label><input id="city" name="city"></div>
-                    <div class="field"><label>Département</label><input id="department" name="department"></div>
-                    <div class="field"><label>SIRET</label><input id="siret" name="siret"></div>
-                    <div class="field"><label>Code NAF</label><input id="naf" name="naf"></div>
+                    <div class="field"><label>Nom du projet/client *</label><input id="propName" name="name" required></div>
+                    <div class="field"><label>Client associé</label><select id="propClient" name="client_id"><option value="">Aucun client associé</option></select></div>
+                    <div class="field"><label>Source</label><input id="propSource" name="source" placeholder="Ex: BOAMP, Sitadel"></div>
+                    <div class="field"><label>Étape actuelle *</label>
+                        <select id="propStage" name="stage" required>
+                            <option value="Sourcé">Sourcé</option>
+                            <option value="Premier contact">Premier contact</option>
+                            <option value="RDV conducteur">RDV conducteur</option>
+                            <option value="Devis">Devis</option>
+                            <option value="Négociation">Négociation</option>
+                            <option value="Contrat signé">Contrat signé</option>
+                            <option value="Perdu">Perdu</option>
+                        </select>
+                    </div>
+                    <div class="field"><label>Potentiel (€)</label><input id="propPotential" name="potential" type="number" min="0" step="0.01" value="0"></div>
+                    <div class="field"><label>Probabilité (%)</label><input id="propProbability" name="probability" type="number" min="0" max="100" step="1" value="0"></div>
+                    <div class="field"><label>Prochaine action</label><input id="propNextAction" name="next_action" placeholder="Ex: Relancer devis"></div>
+                    <div class="field"><label>Date de relance</label><input id="propFollowUp" name="follow_up_date" type="date"></div>
+                    <div class="field"><label>Assigné à</label><select id="propAssignedTo" name="assigned_to"><option value="">Non assigné</option></select></div>
+                    <div class="field full-width"><label>Notes</label><textarea id="propNotes" name="notes" rows="3"></textarea></div>
                 </div>
-            </div>
+                <div class="actions flex-end mt-18 gap-10">
+                    <button type="button" class="btn" onclick="closeProspectModal()">Annuler</button>
+                    <button type="submit" class="btn primary">Enregistrer l'opportunité</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            <div class="client-tab-panel" id="client-commercial">
+    <div id="baremeModal" class="modal hidden">
+        <div class="modal-box">
+            <div class="modal-head"><h2>Ajouter un barème</h2><button type="button" class="close" onclick="closeBaremeModal()">×</button></div>
+            <form id="baremeForm">
                 <div class="form-grid">
-                    <div class="field"><label>Métiers utilisés</label><input id="jobs" name="jobs"></div>
-                    <div class="field"><label>Qualifications utilisées</label><input id="qualifications" name="qualifications"></div>
-                    <div class="field"><label>Nombre TT actuel</label><input id="currentTT" name="current_tt" type="number" min="0" value="0"></div>
-                    <div class="field"><label>Potentiel TT</label><input id="potentialTT" name="potential_tt" type="number" min="0" value="0"></div>
-                    <div class="field"><label>Agences concurrentes</label><input id="competitors" name="competitors"></div>
-                    <div class="field"><label>Tranche d’effectif</label><select id="employees" name="employees">
-                        <option value="">Non renseignée</option><option value="1–10">1–10</option><option value="11–50">11–50</option><option value="51–250">51–250</option><option value="250+">250+</option>
-                    </select></div>
+                    <div class="field"><label>Métier *</label><input id="barMetier" required></div>
+                    <div class="field"><label>Niveau *</label><input id="barNiveau" required></div>
+                    <div class="field"><label>Prix de vente (€/h) *</label><input id="barSell" type="number" step="0.01" required></div>
+                    <div class="field"><label>Marge (€/h) *</label><input id="barMargin" type="number" step="0.01" required></div>
                 </div>
-            </div>
+                <div class="actions flex-end mt-18 gap-10">
+                    <button type="button" class="btn" onclick="closeBaremeModal()">Annuler</button>
+                    <button type="submit" class="btn primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            <div class="client-tab-panel" id="client-finance">
+    <div id="planningModal" class="modal hidden">
+        <div class="modal-box">
+            <div class="modal-head"><h2>Ajouter au planning</h2><button type="button" class="close" onclick="closePlanningModal()">×</button></div>
+            <form id="planningForm">
                 <div class="form-grid">
-                    <div class="field"><label>Mode de facturation</label><input id="billing" name="billing"></div>
-                    <div class="field"><label>Délai de règlement</label><input id="paymentDelay" name="payment_delay" placeholder="30 jours"></div>
-                    <div class="field"><label>Mode de règlement</label><input id="paymentMethod" name="payment_method"></div>
-                    <div class="field"><label>Encours actuel (€)</label><input id="outstanding" name="outstanding" type="number" min="0" value="0"></div>
-                    <div class="field"><label>Encours autorisé (€)</label><input id="creditLimit" name="credit_limit" type="number" min="0" value="0"></div>
-                    <div class="field"><label>Niveau de risque</label><select id="riskLevel" name="risk_level">
-                        <option value="normal">Normal</option><option value="surveillance">Surveillance</option><option value="bloqué">Bloqué</option>
-                    </select></div>
-                    <div class="field"><label>E-mail contrats</label><input id="contractEmail" name="contract_email" type="email"></div>
-                    <div class="field"><label>E-mail factures</label><input id="invoiceEmail" name="invoice_email" type="email"></div>
+                    <div class="field"><label>Ressource / Intérimaire *</label><input id="planRes" required></div>
+                    <div class="field"><label>Type d'action *</label><select id="planType"><option>Mission N3</option><option>Formation</option><option>Appel</option></select></div>
+                    <div class="field"><label>Jour *</label><select id="planDay"><option>Lun 21</option><option>Mar 22</option><option>Mer 23</option><option>Jeu 24</option><option>Ven 25</option></select></div>
                 </div>
-            </div>
-
-            <div class="client-tab-panel" id="client-contacts">
-                <div class="empty-tab"><h3>Contacts du client</h3><p>Les contacts multiples seront gérés ici.</p>
-                    <button type="button" class="btn light" onclick="toast('Gestion des contacts à connecter')">+ Ajouter un contact</button>
+                <div class="actions flex-end mt-18 gap-10">
+                    <button type="button" class="btn" onclick="closePlanningModal()">Annuler</button>
+                    <button type="submit" class="btn primary">Enregistrer</button>
                 </div>
-            </div>
+            </form>
+        </div>
+    </div>
 
-            <div class="client-tab-panel" id="client-chantiers">
-                <div class="empty-tab"><h3>Chantiers associés</h3><p>Les chantiers liés à ce client seront gérés ici.</p>
-                    <button type="button" class="btn light" onclick="toast('Gestion des chantiers à connecter')">+ Ajouter un chantier</button>
+    <!-- Toast Notifications -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        'use strict';
+
+        // ==========================================
+        // 1. SUPABASE (Déjà connecté via <head>)
+        // ==========================================
+
+        // Déconnexion
+        async function deconnexion() {
+            await window.supabaseInstance.auth.signOut();
+            window.location.href = 'login.html';
+        }
+
+        // ==========================================
+        // 2. CHARGEMENT ET SAUVEGARDE DES CLIENTS (SUPABASE)
+        // ==========================================
+        async function chargerClientsSupabase() {
+            const { data: clients, error } = await window.supabaseInstance.from('clients').select('*').order('created_at', { ascending: false });
+            
+            if (error) return console.error('Erreur de chargement des clients:', error);
+
+            const body = document.getElementById('clientsBody');
+            body.innerHTML = '';
+            
+            clients.forEach(client => {
+                const badgeClass = client.statut === 'Actif' ? 'green' : (client.statut === 'Bloqué' ? 'red' : 'orange');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><b>${client.entreprise}</b></td>
+                    <td>${client.type_client}</td>
+                    <td>${client.contact_principal || 'Non renseigné'}</td>
+                    <td>${client.potentiel_tt} h/mois</td>
+                    <td><span class="badge ${badgeClass}">${client.statut}</span></td>
+                    <td>
+                        <button type="button" class="btn light" onclick="editClientRow(this)">Gérer</button>
+                        <button type="button" class="btn" style="padding: 10px 12px;" onclick="openDossierRow(this)">Dossier</button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+            updateCounters();
+        }
+
+        // Exécute le chargement si on est bien connecté
+        chargerClientsSupabase();
+
+        // ==========================================
+        // 3. INTERFACE UTILISATEUR (Navigation, Modals, Toasts)
+        // ==========================================
+        const navButtons = document.querySelectorAll('.nav button');
+        const views = document.querySelectorAll('.view');
+        const crumb = document.getElementById('crumb');
+
+        function show(viewId) {
+            views.forEach(v => v.classList.add('hidden'));
+            const targetView = document.getElementById(viewId);
+            if (targetView) targetView.classList.remove('hidden');
+
+            navButtons.forEach(btn => {
+                if (btn.getAttribute('data-view') === viewId) {
+                    btn.classList.add('active');
+                    if (crumb) crumb.innerText = btn.innerText.replace(/[^\w\sàâäéèêëîïôöùûüç&]/gi, '').trim();
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const view = btn.getAttribute('data-view');
+                show(view);
+            });
+        });
+
+        // HISTORIQUE & NOTIFICATIONS TOAST
+        let actionHistory = [];
+        const notifBadge = document.getElementById('notifBadge');
+        const notifPanel = document.getElementById('notifPanel');
+        const notifList = document.getElementById('notifList');
+
+        function toast(msg) {
+            const t = document.getElementById('toast');
+            if (t) {
+                t.innerText = msg;
+                t.classList.remove('hidden');
+                clearTimeout(window.toastTimer);
+                window.toastTimer = setTimeout(() => t.classList.add('hidden'), 3000);
+            }
+            logToHistory(msg);
+        }
+
+        function logToHistory(msg) {
+            const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            actionHistory.unshift({ msg, time });
+            if (notifPanel && notifBadge && notifPanel.classList.contains('hidden')) {
+                let currentCount = parseInt(notifBadge.innerText) || 0;
+                notifBadge.innerText = currentCount + 1;
+                notifBadge.classList.remove('hidden');
+            }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            if (!notifList) return;
+            if (actionHistory.length === 0) {
+                notifList.innerHTML = '<p class="text-muted" style="text-align:center; font-size:13px; margin:0;">Aucune action récente.</p>';
+                return;
+            }
+            notifList.innerHTML = actionHistory.map(item => `
+                <div style="font-size:13px; padding:10px 12px; background:var(--bg-main); border-radius:var(--radius-sm); border-left:3px solid var(--primary-brand);">
+                    <div style="color:var(--text-muted); font-weight:700; font-size:10.5px; margin-bottom:4px;">${item.time}</div>
+                    <div style="color:var(--text-main); font-weight:500;">${item.msg}</div>
                 </div>
-            </div>
+            `).join('');
+        }
 
-            <div class="actions client-actions">
-                <button type="button" class="btn" onclick="closeClientModal()">Annuler</button>
-                <button type="submit" class="btn primary">Enregistrer les modifications</button>
-            </div>
-        </form>
-    </div>
-</div>
+        function clearHistory() {
+            actionHistory = [];
+            if(notifBadge) {
+                notifBadge.innerText = '0';
+                notifBadge.classList.add('hidden');
+            }
+            renderHistory();
+        }
 
-<!-- Modal Intérimaire -->
-<div id="interimaireModal" class="modal hidden">
-    <div class="modal-box">
-        <div class="modal-head"><h2>Ajouter un intérimaire</h2><button class="close" onclick="closeInterimaireModal()">×</button></div>
-        <form id="interimaireForm">
-            <div class="form-grid">
-                <div class="field"><label>Nom *</label><input id="intNom" required></div>
-                <div class="field"><label>Prénom *</label><input id="intPrenom" required></div>
-                <div class="field"><label>Métier & Niveau *</label><input id="intMetier" placeholder="Ex: Maçon N3" required></div>
-                <div class="field"><label>Disponibilité</label><select id="intDispo"><option>Immédiate</option><option>En mission</option><option>En formation</option></select></div>
-                <div class="field"><label>Score terrain</label><input id="intScore" type="number" step="0.1" value="4.5"></div>
-                <div class="field"><label>Conformité</label><select id="intConformite"><option>Conforme</option><option>CACES à renouveler</option><option>Visite médicale expirée</option></select></div>
-            </div>
-            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
-                <button type="button" class="btn" onclick="closeInterimaireModal()">Annuler</button>
-                <button type="submit" class="btn primary">Enregistrer</button>
-            </div>
-        </form>
-    </div>
-</div>
+        const notifBtn = document.getElementById('notifBtn');
+        if (notifBtn) {
+            notifBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notifPanel.classList.toggle('hidden');
+                if (!notifPanel.classList.contains('hidden')) {
+                    notifBadge.innerText = '0';
+                    notifBadge.classList.add('hidden');
+                }
+            });
+        }
 
-<!-- Modal Demande -->
-<div id="demandeModal" class="modal hidden">
-    <div class="modal-box">
-        <div class="modal-head"><h2>Saisir une demande</h2><button class="close" onclick="closeDemandeModal()">×</button></div>
-        <form id="demandeForm">
-            <div class="form-grid">
-                <div class="field"><label>Client *</label><select id="demandeClient" name="client_id" required><option value="">Sélectionner un client</option></select></div>
-                <div class="field"><label>Métier recherché *</label><input id="demandeMetier" name="trade" required></div>
-                <div class="field"><label>Démarrage *</label><input id="demandeStart" name="start_date" type="date" required></div>
-                <div class="field"><label>Urgence</label><select id="demandeUrgence" name="urgency"><option>Normal</option><option>Urgent</option></select></div>
-            </div>
-            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
-                <button type="button" class="btn" onclick="closeDemandeModal()">Annuler</button>
-                <button type="submit" class="btn primary">Enregistrer</button>
-            </div>
-        </form>
-    </div>
-</div>
+        document.addEventListener('click', (e) => {
+            if (notifPanel && !notifPanel.contains(e.target) && e.target.id !== 'notifBtn' && !notifPanel.classList.contains('hidden')) {
+                notifPanel.classList.add('hidden');
+            }
+        });
 
-<!-- Modal Prospect complet -->
-<div id="prospectModal" class="modal hidden">
-    <div class="modal-box">
-        <div class="modal-head"><h2>Capturer une opportunité</h2><button class="close" type="button" onclick="closeProspectModal()">×</button></div>
-        <form id="prospectForm" autocomplete="off">
-            <input type="hidden" id="prospectId" name="id">
-            <div class="form-grid">
-                <div class="field"><label>Nom du projet/client *</label><input id="propName" name="name" required></div>
-                <div class="field"><label>Client associé</label><select id="propClient" name="client_id"><option value="">Aucun client associé</option></select></div>
-                <div class="field"><label>Source</label><input id="propSource" name="source" placeholder="Ex: BOAMP, Sitadel"></div>
-                <div class="field"><label>Étape actuelle *</label><select id="propStage" name="stage" required>
-                    <option value="Sourcé">Sourcé</option><option value="Premier contact">Premier contact</option><option value="RDV conducteur">RDV conducteur</option><option value="Devis">Devis</option><option value="Négociation">Négociation</option><option value="Contrat signé">Contrat signé</option><option value="Perdu">Perdu</option>
-                </select></div>
-                <div class="field"><label>Potentiel (€)</label><input id="propPotential" name="potential" type="number" min="0" step="0.01" value="0"></div>
-                <div class="field"><label>Probabilité (%)</label><input id="propProbability" name="probability" type="number" min="0" max="100" step="1" value="0"></div>
-                <div class="field"><label>Prochaine action</label><input id="propNextAction" name="next_action" placeholder="Ex: Relancer devis"></div>
-                <div class="field"><label>Date de relance</label><input id="propFollowUp" name="follow_up_date" type="date"></div>
-                <div class="field"><label>Assigné à</label><select id="propAssignedTo" name="assigned_to"><option value="">Non assigné</option></select></div>
-                <div class="field full-width"><label>Notes</label><textarea id="propNotes" name="notes" rows="3"></textarea></div>
-            </div>
-            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
-                <button type="button" class="btn" onclick="closeProspectModal()">Annuler</button>
-                <button type="submit" class="btn primary">Enregistrer l'opportunité</button>
-            </div>
-        </form>
-    </div>
-</div>
+        // GESTION DES MODALS
+        function openInterimaireModal() { document.getElementById('interimaireModal').classList.remove('hidden'); }
+        function closeInterimaireModal() { document.getElementById('interimaireModal').classList.add('hidden'); }
+        function openDemandeModal() { document.getElementById('demandeModal').classList.remove('hidden'); }
+        function closeDemandeModal() { document.getElementById('demandeModal').classList.add('hidden'); }
+        function openProspectModal() { document.getElementById('prospectModal').classList.remove('hidden'); }
+        function closeProspectModal() { document.getElementById('prospectModal').classList.add('hidden'); }
+        function openBaremeModal() { document.getElementById('baremeModal').classList.remove('hidden'); }
+        function closeBaremeModal() { document.getElementById('baremeModal').classList.add('hidden'); }
+        function openPlanningModal() { document.getElementById('planningModal').classList.remove('hidden'); }
+        function closePlanningModal() { document.getElementById('planningModal').classList.add('hidden'); }
 
-<!-- Modal Barème -->
-<div id="baremeModal" class="modal hidden">
-    <div class="modal-box">
-        <div class="modal-head"><h2>Ajouter un barème</h2><button class="close" onclick="closeBaremeModal()">×</button></div>
-        <form id="baremeForm">
-            <div class="form-grid">
-                <div class="field"><label>Métier *</label><input id="barMetier" required></div>
-                <div class="field"><label>Niveau *</label><input id="barNiveau" required></div>
-                <div class="field"><label>Prix de vente (€/h) *</label><input id="barSell" type="number" step="0.01" required></div>
-                <div class="field"><label>Marge (€/h) *</label><input id="barMargin" type="number" step="0.01" required></div>
-            </div>
-            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
-                <button type="button" class="btn" onclick="closeBaremeModal()">Annuler</button>
-                <button type="submit" class="btn primary">Enregistrer</button>
-            </div>
-        </form>
-    </div>
-</div>
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.add('hidden');
+            });
+        });
 
-<!-- Modal Planning -->
-<div id="planningModal" class="modal hidden">
-    <div class="modal-box">
-        <div class="modal-head"><h2>Ajouter au planning</h2><button class="close" type="button" onclick="closePlanningModal()">×</button></div>
-        <form id="planningForm" autocomplete="off">
-            <div class="form-grid">
-                <div class="field"><label>Ressource / Intérimaire *</label><input id="planRes" name="resource" required></div>
-                <div class="field"><label>Type d'action *</label><select id="planType" name="action_type" required>
-                    <option value="Mission">Mission</option><option value="Appel commercial">Appel commercial</option><option value="Rendez-vous terrain">Rendez-vous terrain</option><option value="Formation">Formation</option><option value="Relance">Relance</option><option value="Terrain">Terrain</option><option value="Autre">Autre</option>
-                </select></div>
-                <div class="field"><label>Date *</label><input id="planDate" name="action_date" type="date" value="2026-10-01" required></div>
-            </div>
-            <div class="actions" style="justify-content:flex-end;margin-top:18px;display:flex;gap:10px;">
-                <button type="button" class="btn" onclick="closePlanningModal()">Annuler</button>
-                <button type="submit" class="btn primary">Enregistrer</button>
-            </div>
-        </form>
-    </div>
-</div>
+        function updateCounters() {
+            const clientRows = document.querySelectorAll('#clientsBody tr').length;
+            const clientCountEl = document.getElementById('clientCount');
+            if (clientCountEl) clientCountEl.innerText = `${clientRows} clients`;
 
-<!-- Toast notifications -->
-<div id="toast" class="toast hidden"></div>
+            const kpiDemandes = document.getElementById('kpiDemandes');
+            const demandesCount = document.querySelectorAll('#demandesList .row').length;
+            if (kpiDemandes) kpiDemandes.innerText = 5 + demandesCount;
 
-<!-- SDK SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- PROTECTION DE L'APPLICATION -->
-<script src="auth_guard.js"></script>
-<!-- LOGIQUE DE L'APPLICATION -->
-<script src="app.js"></script>
+            const kpiInterims = document.getElementById('kpiInterims');
+            const interimsCount = document.querySelectorAll('#interimairesBody tr').length;
+            if (kpiInterims) kpiInterims.innerText = 44 + interimsCount;
+        }
+
+        const sellInput = document.getElementById('sell');
+        const costInput = document.getElementById('cost');
+        const marginEl = document.getElementById('margin');
+        const marginBox = document.getElementById('marginBox');
+
+        function updateMargin() {
+            if (!sellInput || !costInput || !marginEl) return;
+            const sell = parseFloat(sellInput.value) || 0;
+            const cost = parseFloat(costInput.value) || 0;
+            const diff = (sell - cost).toFixed(2);
+            
+            if (diff >= 4.5) {
+                marginEl.innerText = `${diff.replace('.', ',')} €/h — Conforme`;
+                marginBox.className = "alert green mt-16";
+            } else {
+                marginEl.innerText = `${diff.replace('.', ',')} €/h — En dessous du seuil (4,50 €)`;
+                marginBox.className = "alert red mt-16";
+            }
+        }
+
+        if (sellInput && costInput) {
+            sellInput.addEventListener('input', updateMargin);
+            costInput.addEventListener('input', updateMargin);
+        }
+
+        const distanceInput = document.getElementById('distance');
+        const zoneEl = document.getElementById('zone');
+        const zoneBox = document.getElementById('zoneBox');
+        if (distanceInput && zoneEl) {
+            distanceInput.addEventListener('input', () => {
+                const dist = parseFloat(distanceInput.value) || 0;
+                if (dist <= 10) {
+                    zoneEl.innerText = "Zone 1 • Proche (< 10 km)";
+                    zoneBox.className = "alert green mt-14";
+                } else if (dist <= 30) {
+                    zoneEl.innerText = "Zone 2 • Dans le rayon (10 - 30 km)";
+                    zoneBox.className = "alert blue mt-14";
+                } else {
+                    zoneEl.innerText = "Zone 3 • Éloigné (> 30 km) — Indemnité grand déplacement";
+                    zoneBox.className = "alert red mt-14";
+                }
+            });
+        }
+
+        // ==========================================
+        // 4. GESTION DES CLIENTS (AVEC SUPABASE)
+        // ==========================================
+        let currentEditingClientRow = null;
+        let currentDossierClientRow = null;
+
+        function openClientModal(isEdit = false) {
+            const modalTitle = document.getElementById('clientModalTitle');
+            if (!isEdit) {
+                currentEditingClientRow = null;
+                document.getElementById('clientForm').reset();
+                if (modalTitle) modalTitle.innerText = 'Créer un client';
+            }
+            document.getElementById('clientModal').classList.remove('hidden');
+        }
+
+        function closeClientModal() {
+            document.getElementById('clientModal').classList.add('hidden');
+            currentEditingClientRow = null;
+        }
+
+        function editClientRow(btn) {
+            const tr = btn.closest('tr');
+            if (!tr) return;
+            currentEditingClientRow = tr;
+
+            const company = tr.cells[0].innerText.trim();
+            const type = tr.cells[1].innerText.trim();
+            const contact = tr.cells[2].innerText.trim();
+            const potential = parseInt(tr.cells[3].innerText) || 0;
+            const status = tr.cells[4].innerText.trim();
+
+            document.getElementById('clientModalTitle').innerText = `Gérer — ${company}`;
+            document.getElementById('company').value = company;
+            document.getElementById('clientType').value = type;
+            document.getElementById('activity').value = contact;
+            document.getElementById('potentialTT').value = potential;
+            
+            const statusFormatted = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+            document.getElementById('clientStatus').value = statusFormatted;
+
+            openClientModal(true);
+        }
+
+        function openDossierRow(btn) {
+            const tr = btn.closest('tr');
+            if (!tr) return;
+            currentDossierClientRow = tr;
+
+            const company = tr.cells[0].innerText.trim();
+            const contact = tr.cells[2].innerText.trim();
+            const status = tr.cells[4].innerText.trim().toUpperCase();
+
+            document.getElementById('dossierModalTitle').innerText = `Dossier Financier — ${company}`;
+            document.getElementById('dossierContact').innerText = contact;
+
+            const alertBox = document.getElementById('dossierAlertBox');
+            const badgeStatus = document.getElementById('dossierBadgeStatus');
+            const encoursEl = document.getElementById('dossierEncours');
+            const notesEl = document.getElementById('dossierNotes');
+            const btnDebloquer = document.getElementById('btnDebloquerClient');
+
+            if (status === 'BLOQUÉ') {
+                alertBox.className = 'alert red';
+                alertBox.querySelector('span').innerHTML = `<b>Statut financier :</b> Encours dépassé (Plafond assurance-crédit atteint)`;
+                badgeStatus.innerText = 'BLOQUÉ';
+                encoursEl.innerText = '15 400 €';
+                notesEl.value = `Compte ${company} bloqué automatiquement. 2 factures échues en attente de règlement avant toute nouvelle affectation chantier.`;
+                btnDebloquer.innerText = '✓ Régulariser & Débloquer';
+                btnDebloquer.className = 'btn primary';
+            } else {
+                alertBox.className = 'alert green';
+                alertBox.querySelector('span').innerHTML = `<b>Statut financier :</b> Compte sain • Autorisation d'encours active`;
+                badgeStatus.innerText = 'CONFORME';
+                encoursEl.innerText = '4 200 €';
+                notesEl.value = `Dossier ${company} à jour : Kbis, assurance décennale et paiements conformes. Plafond autorisé : 50 000 €.`;
+                btnDebloquer.innerText = '⚠ Bloquer le compte';
+                btnDebloquer.className = 'btn';
+            }
+
+            document.getElementById('dossierModal').classList.remove('hidden');
+        }
+
+        function closeDossierModal() {
+            document.getElementById('dossierModal').classList.add('hidden');
+            currentDossierClientRow = null;
+        }
+
+        function relancerClientDossier() {
+            if (!currentDossierClientRow) return;
+            const company = currentDossierClientRow.cells[0].innerText.trim();
+            toast(`📩 Relance comptable envoyée à ${company} !`);
+        }
+
+        function debloquerClientDossier() {
+            if (!currentDossierClientRow) return;
+            const company = currentDossierClientRow.cells[0].innerText.trim();
+            const currentStatus = currentDossierClientRow.cells[4].innerText.trim().toUpperCase();
+
+            if (currentStatus === 'BLOQUÉ') {
+                currentDossierClientRow.cells[1].innerText = 'Client actif';
+                currentDossierClientRow.cells[4].innerHTML = '<span class="badge green">Actif</span>';
+                toast(`✅ Compte "${company}" régularisé et débloqué !`);
+            } else {
+                currentDossierClientRow.cells[1].innerText = 'Client à risque';
+                currentDossierClientRow.cells[4].innerHTML = '<span class="badge red">Bloqué</span>';
+                toast(`⛔ Compte "${company}" placé en blocage préventif.`);
+            }
+            closeDossierModal();
+        }
+
+        document.getElementById('clientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const newClient = {
+                entreprise: document.getElementById('company').value,
+                type_client: document.getElementById('clientType').value,
+                contact_principal: document.getElementById('activity').value || 'Directeur Chantier',
+                telephone: document.getElementById('phone').value,
+                potentiel_tt: parseInt(document.getElementById('potentialTT').value) || 0,
+                statut: document.getElementById('clientStatus').value
+            };
+
+            const { data, error } = await window.supabaseInstance.from('clients').insert([newClient]);
+
+            if (error) {
+                toast('Erreur lors de la sauvegarde : ' + error.message);
+            } else {
+                toast(`Client "${newClient.entreprise}" sauvegardé dans Supabase !`);
+                closeClientModal();
+                e.target.reset();
+                chargerClientsSupabase();
+            }
+            
+            const propClientSelect = document.getElementById('propClient');
+            if (propClientSelect && !currentEditingClientRow) {
+                const opt = document.createElement('option');
+                opt.value = newClient.entreprise;
+                opt.innerText = newClient.entreprise;
+                propClientSelect.appendChild(opt);
+            }
+        });
+
+        // ==========================================
+        // 5. GESTION DES AUTRES FORMULAIRES (Restent en local pour la démo)
+        // ==========================================
+        function openInterimaireProfile(btn) {
+            const tr = btn.closest('tr');
+            if (!tr) return;
+
+            const name = tr.cells[0].innerText.trim();
+            const metier = tr.cells[1].innerText.trim();
+            const dispo = tr.cells[2].innerText.trim();
+            const score = tr.cells[3].innerText.trim();
+            const conformite = tr.cells[4].innerText.trim();
+
+            document.getElementById('profileName').innerText = name;
+            document.getElementById('profileRole').innerText = `${metier} • Profil vérifié`;
+            document.getElementById('profileDispo').innerText = dispo;
+            document.getElementById('profileScore').innerText = `${score} terrain`;
+
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('profileInitials').innerText = initials;
+
+            const medBadge = document.getElementById('profileMedicalBadge');
+            const medText = document.getElementById('profileMedicalText');
+            if (conformite.toLowerCase().includes('expirée') || conformite.toLowerCase().includes('bloqué')) {
+                medBadge.className = 'badge red';
+                medBadge.innerText = 'Expirée';
+                medText.innerText = 'Attention : Visite médicale à renouveler d\'urgence';
+            } else {
+                medBadge.className = 'badge green';
+                medBadge.innerText = 'Valide';
+                medText.innerText = 'À jour (Renouvellement annuel)';
+            }
+
+            document.getElementById('interimaireProfileModal').classList.remove('hidden');
+        }
+
+        function closeInterimaireProfileModal() {
+            document.getElementById('interimaireProfileModal').classList.add('hidden');
+        }
+
+        document.getElementById('interimaireForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nom = document.getElementById('intNom').value;
+            const prenom = document.getElementById('intPrenom').value;
+            const metier = document.getElementById('intMetier').value;
+            const dispo = document.getElementById('intDispo').value;
+            const score = document.getElementById('intScore').value || '4.5';
+            const conf = document.getElementById('intConformite').value;
+            const body = document.getElementById('interimairesBody');
+
+            const dispoBadge = dispo === 'Immédiate' ? 'green' : (dispo === 'En mission' ? 'blue' : 'orange');
+            const confBadge = conf === 'Conforme' ? 'green' : (conf.includes('expirée') ? 'red' : 'orange');
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td><b>${prenom} ${nom}</b></td><td>${metier}</td><td><span class="badge ${dispoBadge}">${dispo}</span></td><td>${score} / 5</td><td><span class="badge ${confBadge}">${conf}</span></td><td><button type="button" class="btn light" onclick="openInterimaireProfile(this)">Voir</button></td>`;
+            body.appendChild(tr);
+
+            updateCounters();
+            closeInterimaireModal();
+            toast(`Intérimaire "${prenom} ${nom}" ajouté !`);
+            e.target.reset();
+        });
+
+        document.getElementById('demandeForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const client = document.getElementById('demandeClient').value;
+            const metier = document.getElementById('demandeMetier').value;
+            const start = document.getElementById('demandeStart').value;
+            const urgence = document.getElementById('demandeUrgence').value;
+            const list = document.getElementById('demandesList');
+
+            const dateFormatted = start ? new Date(start).toLocaleDateString('fr-FR') : 'Immédiat';
+            const badgeClass = urgence === 'Urgent' ? 'red' : 'blue';
+
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.innerHTML = `<div><h4>${client} — ${metier}</h4><p>Démarrage : ${dateFormatted}</p></div><span class="badge ${badgeClass}">${urgence}</span>`;
+            list.prepend(row);
+
+            updateCounters();
+            closeDemandeModal();
+            show('matching');
+            toast(`Demande "${client} — ${metier}" créée !`);
+            e.target.reset();
+        });
+
+        document.getElementById('baremeForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const metier = document.getElementById('barMetier').value;
+            const niveau = document.getElementById('barNiveau').value;
+            const sell = parseFloat(document.getElementById('barSell').value).toFixed(2);
+            const margin = parseFloat(document.getElementById('barMargin').value).toFixed(2);
+            const body = document.getElementById('baremeBody');
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${metier}</td><td>${niveau}</td><td>${sell} €</td><td>${margin} €/h</td>`;
+            body.appendChild(tr);
+
+            closeBaremeModal();
+            show('marge');
+            toast(`Barème "${metier} (${niveau})" ajouté !`);
+            e.target.reset();
+        });
+
+        document.getElementById('planningForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const res = document.getElementById('planRes').value;
+            const type = document.getElementById('planType').value;
+            const day = document.getElementById('planDay').value;
+            const body = document.getElementById('planningBody');
+
+            const days = ['Lun 21', 'Mar 22', 'Mer 23', 'Jeu 24', 'Ven 25'];
+            const badgeColor = type.includes('Mission') ? 'blue' : (type.includes('Formation') ? 'orange' : 'green');
+
+            const cells = days.map(d => {
+                if (d === day) return `<td><span class="badge ${badgeColor}">${type}</span></td>`;
+                return `<td><span class="badge green">Disponible</span></td>`;
+            }).join('');
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td><b>${res}</b></td>${cells}`;
+            body.appendChild(tr);
+
+            closePlanningModal();
+            show('planning');
+            toast(`Planning mis à jour pour ${res} (${day}) !`);
+            e.target.reset();
+        });
+
+        const searchInput = document.getElementById('search');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase().trim();
+                const activeView = document.querySelector('.view:not(.hidden)');
+                if (!activeView) return;
+
+                activeView.querySelectorAll('tbody tr, .list .row').forEach(item => {
+                    const text = item.innerText.toLowerCase();
+                    item.style.display = text.includes(term) ? '' : 'none';
+                });
+            });
+        }
+
+        // ==========================================
+        // 6. PIPELINE COMMERCIAL INTERACTIF
+        // ==========================================
+        const STAGES_ORDER = [
+            'Sourcé',
+            'Premier contact',
+            'RDV conducteur',
+            'Devis',
+            'Négociation',
+            'Contrat signé',
+            'Perdu'
+        ];
+
+        function getStageColorClass(stageName) {
+            if (stageName === 'Contrat signé') return 'green';
+            if (stageName === 'Perdu') return 'red';
+            if (stageName === 'RDV conducteur' || stageName === 'Devis' || stageName === 'Négociation') return 'green';
+            return 'blue';
+        }
+
+        function createPipelineCard(title, potential = 0, currentStage = 'Sourcé') {
+            const card = document.createElement('div');
+            const colorClass = getStageColorClass(currentStage);
+            card.className = `alert ${colorClass} pipeline-card`;
+            card.draggable = true;
+            card.dataset.title = title;
+            card.dataset.potential = potential;
+
+            const renderCardContent = (stage) => {
+                const idx = STAGES_ORDER.indexOf(stage);
+                const canPrev = idx > 0;
+                const canNext = idx < STAGES_ORDER.length - 1;
+                const nextStageName = canNext ? STAGES_ORDER[idx + 1] : '';
+
+                card.className = `alert ${getStageColorClass(stage)} pipeline-card`;
+                card.innerHTML = `
+                    <div class="pipeline-card-top">
+                        <span class="pipeline-card-title">${title}</span>
+                    </div>
+                    ${potential > 0 ? `<div class="pipeline-card-meta">💰 ${potential} €</div>` : ''}
+                    <div class="pipeline-actions">
+                        <div>
+                            ${canPrev ? `<button type="button" class="pipe-btn prev-btn" title="Reculer">←</button>` : ''}
+                            ${canNext ? `<button type="button" class="pipe-btn next-btn" title="Avancer vers ${nextStageName}">Avancer →</button>` : ''}
+                        </div>
+                        <button type="button" class="pipe-btn delete" title="Supprimer">×</button>
+                    </div>
+                `;
+
+                const prevBtn = card.querySelector('.prev-btn');
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        moveCardToStage(card, STAGES_ORDER[idx - 1]);
+                    });
+                }
+
+                const nextBtn = card.querySelector('.next-btn');
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        moveCardToStage(card, STAGES_ORDER[idx + 1]);
+                    });
+                }
+
+                const delBtn = card.querySelector('.delete');
+                if (delBtn) {
+                    delBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        card.remove();
+                        toast(`Opportunité "${title}" supprimée`);
+                    });
+                }
+            };
+
+            function moveCardToStage(cardEl, targetStage) {
+                const targetCol = document.querySelector(`.stage[data-stage="${targetStage}"] .stage-content`);
+                if (targetCol) {
+                    targetCol.appendChild(cardEl);
+                    renderCardContent(targetStage);
+                    toast(`"${title}" déplacé vers ${targetStage} !`);
+                }
+            }
+
+            card.addEventListener('click', () => {
+                const currentStageEl = card.closest('.stage');
+                if (!currentStageEl) return;
+                const currentStageName = currentStageEl.getAttribute('data-stage');
+                const idx = STAGES_ORDER.indexOf(currentStageName);
+                if (idx >= 0 && idx < STAGES_ORDER.length - 1) {
+                    moveCardToStage(card, STAGES_ORDER[idx + 1]);
+                } else {
+                    toast(`"${title}" est déjà à la dernière étape (${currentStageName}).`);
+                }
+            });
+
+            card.addEventListener('dragstart', () => {
+                window.draggedPipeCard = card;
+                window.draggedPipeCardMove = moveCardToStage;
+                card.style.opacity = '0.5';
+            });
+
+            card.addEventListener('dragend', () => {
+                card.style.opacity = '1';
+                window.draggedPipeCard = null;
+            });
+
+            renderCardContent(currentStage);
+            return card;
+        }
+
+        document.querySelectorAll('#pipelineStages .stage').forEach(stageEl => {
+            stageEl.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                stageEl.classList.add('drag-over');
+            });
+            stageEl.addEventListener('dragleave', () => {
+                stageEl.classList.remove('drag-over');
+            });
+            stageEl.addEventListener('drop', (e) => {
+                e.preventDefault();
+                stageEl.classList.remove('drag-over');
+                const targetStage = stageEl.getAttribute('data-stage');
+                if (window.draggedPipeCard && window.draggedPipeCardMove) {
+                    window.draggedPipeCardMove(window.draggedPipeCard, targetStage);
+                }
+            });
+        });
+
+        document.querySelectorAll('#pipelineStages .stage').forEach(stageEl => {
+            const stageName = stageEl.getAttribute('data-stage');
+            const content = stageEl.querySelector('.stage-content');
+            const existingAlerts = Array.from(content.querySelectorAll('.alert'));
+            existingAlerts.forEach(oldCard => {
+                const title = oldCard.innerText.trim();
+                oldCard.remove();
+                content.appendChild(createPipelineCard(title, 0, stageName));
+            });
+        });
+
+        document.getElementById('prospectForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('propName').value;
+            const stageName = document.getElementById('propStage').value;
+            const potential = parseFloat(document.getElementById('propPotential').value) || 0;
+
+            const stageCol = document.querySelector(`.stage[data-stage="${stageName}"] .stage-content`);
+            if (stageCol) {
+                const interactiveCard = createPipelineCard(name, potential, stageName);
+                stageCol.appendChild(interactiveCard);
+            }
+
+            closeProspectModal();
+            show('commercial');
+            toast(`Opportunité "${name}" ajoutée dans "${stageName}" !`);
+            e.target.reset();
+        });
+
+        // ==========================================
+        // 7. DATE DU JOUR
+        // ==========================================
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    </script>
 </body>
 </html>
